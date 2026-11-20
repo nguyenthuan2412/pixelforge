@@ -46,17 +46,23 @@ sudo scripts/install-libvips.sh /opt/sharp-libvips     # Linux glibc/musl x64/ar
 **PIE**
 
 ```bash
+pie repository:add vcs https://github.com/nguyenthuan2412/pixelforge   # until the package is on Packagist
 pie install nguyenthuan2412/pixelforge
 # with the sharp-libvips bundle:
 pie install nguyenthuan2412/pixelforge --with-pixelforge-vips=/opt/sharp-libvips
 ```
 
+PIE builds the extension, writes the ini file and enables it.
+
 **PECL** (package from the [releases page](https://github.com/nguyenthuan2412/pixelforge/releases))
 
 ```bash
-pecl install https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.0/pixelforge-0.1.0.tgz
-# then add extension=pixelforge to php.ini
+curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.0/pixelforge-0.1.0.tgz
+pecl install pixelforge-0.1.0.tgz            # it prompts for the libvips prefix: press Enter to use pkg-config
+echo "extension=pixelforge" > "$(php-config --ini-dir 2>/dev/null || php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')/50-pixelforge.ini"
 ```
+
+Download the archive first. `pecl install <url>` fails on GitHub's release redirects.
 
 **From source**
 

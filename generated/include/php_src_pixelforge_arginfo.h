@@ -1,0 +1,474 @@
+/* This is a generated file, edit the .stub.php file instead.
+ * Stub hash: 507bc730262691deeb1d6e56addeb9d7760d7f7b */
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_from_file, 0, 9, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, path, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, failOn, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, limitPixels, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, autoOrient, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, pages, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, page, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, density, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, unlimited, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, ignoreIcc, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_from_buffer, 0, 9, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, data, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, failOn, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, limitPixels, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, autoOrient, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, pages, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, page, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, density, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, unlimited, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, ignoreIcc, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_from_raw, 0, 6, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, data, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, height, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, channels, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, depth, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, premultiplied, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_create, 0, 10, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, height, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, channels, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, r, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, g, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, a, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, noise, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, mean, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, sigma, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_text, 0, 11, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, text, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, font, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, fontfile, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, height, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, align, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, justify, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, dpi, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, rgba, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, spacing, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, wrap, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_join_new, 0, 9, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, animated, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, across, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, shim, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, r, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, g, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, a, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, halign, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, valign, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_join_add, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, input, IS_MIXED, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_clone, 0, 1, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_resize, 0, 13, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, height, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, fit, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, position, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, r, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, g, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, a, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, withoutEnlargement, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, withoutReduction, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, kernel, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, fastShrinkOnLoad, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_extract, 0, 5, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, left, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, top, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, height, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_extend, 0, 10, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, top, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, bottom, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, left, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, right, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, with, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, r, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, g, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, a, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_trim, 0, 7, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, threshold, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, useBackground, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, r, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, g, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, lineArt, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_rotate, 0, 6, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, angle, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, r, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, g, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, a, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_auto_orient, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_pixelforge_flip arginfo_pixelforge_auto_orient
+
+#define arginfo_pixelforge_flop arginfo_pixelforge_auto_orient
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_affine, 0, 14, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, a, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, c, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, d, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, r, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, g, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, bl, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, al, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, interpolator, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, idx, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, idy, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, odx, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, ody, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_sharpen, 0, 7, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, sigma, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, m1, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, m2, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, x1, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, y2, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, y3, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_median, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, size, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_blur, 0, 4, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, sigma, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, precision, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, minAmplitude, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_flatten, 0, 4, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, r, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, g, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_pixelforge_unflatten arginfo_pixelforge_auto_orient
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_gamma, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, gamma, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, gammaOut, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_negate, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, alpha, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_normalise, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, lower, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, upper, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_clahe, 0, 4, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, height, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, maxSlope, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_threshold, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, threshold, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, greyscale, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_linear, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, a, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_modulate, 0, 5, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, brightness, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, saturation, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, hue, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, lightness, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_pixelforge_tint arginfo_pixelforge_flatten
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_colourspace, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, space, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_pixelforge_remove_alpha arginfo_pixelforge_auto_orient
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_ensure_alpha, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, alpha, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_extract_channel, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, channel, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_join_channel, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, other, IS_MIXED, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_bandbool, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, op, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_boolean, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, other, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, op, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_dilate, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_pixelforge_erode arginfo_pixelforge_dilate
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_convolve, 0, 6, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, height, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, kernel, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, scale, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, offset, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_recomb, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, matrix, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_composite, 0, 8, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, overlay, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, gravity, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, left, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, top, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, blend, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, tile, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, premultiplied, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_output, 0, 31, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, format, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, quality, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, lossless, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, effort, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, progressive, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, chroma, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, mozjpeg, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, compressionLevel, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, palette, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, colours, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, dither, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, adaptiveFiltering, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, nearLossless, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, smartSubsample, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, alphaQuality, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, bitdepth, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, compression, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, predictor, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, tile, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, tileWidth, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, tileHeight, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, pyramid, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, loop, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, delay, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, minSize, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, mixed, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, interframeMaxError, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, interpaletteMaxError, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, reuse, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, optimizeCoding, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_tile, 0, 15, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, size, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, overlap, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, angle, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, layout, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, container, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, depth, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, skipBlanks, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, centre, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, basename, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, id, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, r, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, g, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, b, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, a, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_keep, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, flags, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_icc, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, profile, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_exif, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, flat, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, merge, _IS_BOOL, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_timeout, 0, 2, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, seconds, IS_DOUBLE, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_to_buffer, 0, 2, IS_ARRAY, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, format, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_to_file, 0, 2, IS_ARRAY, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+	ZEND_ARG_TYPE_INFO(0, path, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_metadata, 0, 1, IS_ARRAY, 0)
+	ZEND_ARG_TYPE_INFO(0, h, IS_MIXED, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_pixelforge_stats arginfo_pixelforge_metadata
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_concurrency, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, n, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_get_concurrency, 0, 0, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_cache, 0, 3, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, memoryMb, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, files, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, items, IS_LONG, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_versions, 0, 0, IS_ARRAY, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_pixelforge_formats arginfo_pixelforge_versions
+
+#define arginfo_pixelforge_memory arginfo_pixelforge_versions
+
+ZEND_FUNCTION(pixelforge_from_file);
+ZEND_FUNCTION(pixelforge_from_buffer);
+ZEND_FUNCTION(pixelforge_from_raw);
+ZEND_FUNCTION(pixelforge_create);
+ZEND_FUNCTION(pixelforge_text);
+ZEND_FUNCTION(pixelforge_join_new);
+ZEND_FUNCTION(pixelforge_join_add);
+ZEND_FUNCTION(pixelforge_clone);
+ZEND_FUNCTION(pixelforge_resize);
+ZEND_FUNCTION(pixelforge_extract);
+ZEND_FUNCTION(pixelforge_extend);
+ZEND_FUNCTION(pixelforge_trim);
+ZEND_FUNCTION(pixelforge_rotate);
+ZEND_FUNCTION(pixelforge_auto_orient);
+ZEND_FUNCTION(pixelforge_flip);
+ZEND_FUNCTION(pixelforge_flop);
+ZEND_FUNCTION(pixelforge_affine);
+ZEND_FUNCTION(pixelforge_sharpen);
+ZEND_FUNCTION(pixelforge_median);
+ZEND_FUNCTION(pixelforge_blur);
+ZEND_FUNCTION(pixelforge_flatten);
+ZEND_FUNCTION(pixelforge_unflatten);
+ZEND_FUNCTION(pixelforge_gamma);
+ZEND_FUNCTION(pixelforge_negate);
+ZEND_FUNCTION(pixelforge_normalise);
+ZEND_FUNCTION(pixelforge_clahe);
+ZEND_FUNCTION(pixelforge_threshold);
+ZEND_FUNCTION(pixelforge_linear);
+ZEND_FUNCTION(pixelforge_modulate);
+ZEND_FUNCTION(pixelforge_tint);
+ZEND_FUNCTION(pixelforge_colourspace);
+ZEND_FUNCTION(pixelforge_remove_alpha);
+ZEND_FUNCTION(pixelforge_ensure_alpha);
+ZEND_FUNCTION(pixelforge_extract_channel);
+ZEND_FUNCTION(pixelforge_join_channel);
+ZEND_FUNCTION(pixelforge_bandbool);
+ZEND_FUNCTION(pixelforge_boolean);
+ZEND_FUNCTION(pixelforge_dilate);
+ZEND_FUNCTION(pixelforge_erode);
+ZEND_FUNCTION(pixelforge_convolve);
+ZEND_FUNCTION(pixelforge_recomb);
+ZEND_FUNCTION(pixelforge_composite);
+ZEND_FUNCTION(pixelforge_output);
+ZEND_FUNCTION(pixelforge_tile);
+ZEND_FUNCTION(pixelforge_keep);
+ZEND_FUNCTION(pixelforge_icc);
+ZEND_FUNCTION(pixelforge_exif);
+ZEND_FUNCTION(pixelforge_timeout);
+ZEND_FUNCTION(pixelforge_to_buffer);
+ZEND_FUNCTION(pixelforge_to_file);
+ZEND_FUNCTION(pixelforge_metadata);
+ZEND_FUNCTION(pixelforge_stats);
+ZEND_FUNCTION(pixelforge_concurrency);
+ZEND_FUNCTION(pixelforge_get_concurrency);
+ZEND_FUNCTION(pixelforge_cache);
+ZEND_FUNCTION(pixelforge_versions);
+ZEND_FUNCTION(pixelforge_formats);
+ZEND_FUNCTION(pixelforge_memory);

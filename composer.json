@@ -1,0 +1,31 @@
+{
+    "name": "nguyenthuan2412/pixelforge",
+    "description": "High performance image processing for PHP on libvips, with a sharp-like fluent API (resize, crop, composite, AVIF/WebP/JPEG/PNG/GIF/TIFF, animation) and very low memory use.",
+    "type": "php-ext",
+    "license": "Apache-2.0",
+    "keywords": ["image", "imaging", "libvips", "resize", "thumbnail", "webp", "avif", "jpeg", "png", "gif", "sharp", "extension"],
+    "homepage": "https://github.com/nguyenthuan2412/pixelforge",
+    "support": {
+        "issues": "https://github.com/nguyenthuan2412/pixelforge/issues",
+        "source": "https://github.com/nguyenthuan2412/pixelforge"
+    },
+    "authors": [
+        {"name": "nguyenthuan2412", "homepage": "https://github.com/nguyenthuan2412"}
+    ],
+    "require": {
+        "php": ">=8.4 <8.6"
+    },
+    "php-ext": {
+        "extension-name": "pixelforge",
+        "priority": 50,
+        "support-zts": false,
+        "support-nts": true,
+        "configure-options": [
+            {
+                "name": "with-pixelforge-vips",
+                "needs-value": true,
+                "description": "Prefix of a libvips (vips-cpp >= 8.15) installation, e.g. the sharp-libvips bundle from scripts/install-libvips.sh. Default: pkg-config"
+            }
+        ]
+    }
+}

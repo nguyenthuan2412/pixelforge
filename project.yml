@@ -1,0 +1,9 @@
+name: pixelforge
+mode: ext
+version: 0.1.0
+cxx-std: c++17
+sources:
+  - src
+info:
+  Description: High performance image processing for PHP (libvips), API modelled on sharp
+  License: Apache-2.0

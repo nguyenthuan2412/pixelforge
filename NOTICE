@@ -1,0 +1,18 @@
+pixelforge
+Copyright 2026 nguyenthuan2412 and pixelforge contributors
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product bundles or derives from the following third-party software:
+
+- PHPX (deps/phpx), Copyright Tianfeng.Han — Apache License 2.0 (deps/phpx/LICENSE)
+- mpdecimal (deps/phpx/thirdparty/mpdecimal), Copyright Stefan Krah — BSD 2-Clause
+  (deps/phpx/thirdparty/mpdecimal/COPYRIGHT.txt)
+- wren-gc (deps/phpx/thirdparty/wren-gc), derived from Wren, Copyright Robert Nystrom
+  and Wren Contributors — MIT License (deps/phpx/thirdparty/wren-gc/LICENSE)
+- generated/ is C++ emitted by the TypePHP compiler (https://github.com/swoole/typephp)
+  from this project's own sources in src/.
+
+At runtime pixelforge links against libvips (LGPL-2.1-or-later, https://github.com/libvips/libvips).
+The Docker images optionally ship the prebuilt libvips bundle from the sharp project
+(@img/sharp-libvips, LGPL-3.0-or-later). The API is modelled on sharp
+(https://sharp.pixelplumbing.com/, Apache License 2.0); no sharp source code is included.

@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  phpize:
+    name: phpize · PHP ${{ matrix.php }} · ${{ matrix.vips }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+        vips: [system, sharp-libvips]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: phpize, php-config
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgmp-dev libmpfr-dev pkg-config
+          if [ "${{ matrix.vips }}" = system ]; then
+            sudo apt-get install -y --no-install-recommends libvips-dev
+          else
+            sudo scripts/install-libvips.sh /opt/sharp-libvips
+          fi
+      - name: Build
+        run: |
+          phpize
+          if [ "${{ matrix.vips }}" = system ]; then ./configure; else ./configure --with-pixelforge-vips=/opt/sharp-libvips; fi
+          make -j"$(nproc)"
+      - name: Test
+        run: NO_INTERACTION=1 REPORT_EXIT_STATUS=1 make test TESTS="tests/"
+
+  macos:
+    name: phpize · macOS · PHP 8.5
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: phpize, php-config
+      - run: brew install vips gmp mpfr pkg-config
+      - run: phpize && ./configure && make -j"$(sysctl -n hw.ncpu)"
+      - run: NO_INTERACTION=1 REPORT_EXIT_STATUS=1 make test TESTS="tests/"
+
+  docker:
+    name: Docker image + full test suite
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t pixelforge .
+      - run: docker run --rm pixelforge php /app/tests/run.php
+
+  generated-up-to-date:
+    name: generated/ matches src/
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/generate.sh
+      - run: git diff --exit-code -- generated deps

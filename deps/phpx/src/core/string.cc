@@ -1,0 +1,205 @@
+/*
+  +----------------------------------------------------------------------+
+  | PHP-X                                                                |
+  +----------------------------------------------------------------------+
+  | This source file is subject to version 2.0 of the Apache license,    |
+  | that is bundled with this package in the file LICENSE, and is        |
+  | available through the world-wide-web at the following url:           |
+  | http://www.apache.org/licenses/LICENSE-2.0.html                      |
+  | If you did not receive a copy of the Apache2.0 license and are unable|
+  | to obtain it through the world-wide-web, please send a note to       |
+  | license@swoole.com so we can mail you a copy immediately.            |
+  +----------------------------------------------------------------------+
+  | Author: Tianfeng Han  <rango@swoole.com>                             |
+  +----------------------------------------------------------------------+
+*/
+
+#include "phpx.h"
+#include "runtime_init.h"
+
+#include "slice.h"
+#include "std/string.h"
+
+extern "C" {
+#include "ext/pcre/php_pcre.h"
+}
+
+namespace php {
+
+namespace {
+String empty_string_value;
+}
+
+const String &empty_string = empty_string_value;
+
+void detail::initializeEmptyString() noexcept {
+    // Library globals are constructed before Zend initializes its empty string.
+    // Publish the immutable wrapper once through request_init()'s process guard.
+    ZVAL_EMPTY_STRING(empty_string_value.ptr());
+}
+
+void String::checkString() {
+    if (EXPECTED(isString())) {
+        return;
+    }
+
+    auto zv = unwrap_ptr();
+    auto new_str = zval_get_string(zv);
+    if (UNEXPECTED(EG(exception) != nullptr)) {
+        zend_string_release(new_str);
+        throwErrorIfOccurred();
+        return;
+    }
+    destroy();
+    ZVAL_STR(zv, new_str);
+}
+
+String String::format(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    zend_string *s = vstrpprintf(0, format, args);
+    va_end(args);
+    return String(s, Ctor::Move);
+}
+
+String String::base64Encode() const {
+    return String(php_base64_encode_str(str()), Ctor::Move);
+}
+
+String String::base64Decode() const {
+    return String(php_base64_decode_str(str()), Ctor::Move);
+}
+
+String String::escape(const int flags, const char *charset) const {
+    return String(php_escape_html_entities((uchar *) data(), length(), 0, flags, charset), Ctor::Move);
+}
+
+String String::unescape(const int flags, const char *charset) const {
+    return String(php_unescape_html_entities(str(), 1, flags, charset), Ctor::Move);
+}
+
+String String::trim(const char *what, TrimMode mode) const {
+    return String(php_trim(str(), what, what ? strlen(what) : 0, mode), Ctor::Move);
+}
+
+String String::lower() const {
+    return String(zend_string_tolower(str()), Ctor::Move);
+}
+
+String String::upper() const {
+    return String(zend_string_toupper(str()), Ctor::Move);
+}
+
+void String::print() const {
+    if (str()) {
+        php_printf("(string[%zu]) \"%.*s\"\n", length(), (int) length(), data());
+    } else {
+        php_printf("(null)\n");
+    }
+}
+
+bool String::equals(const String &s, const bool ci) const {
+    if (s.length() != length()) {
+        return false;
+    }
+    if (ci) {
+        return s.length() == length() && zend_binary_strcasecmp(data(), length(), s.data(), s.length()) == 0;
+    }
+    return zend_string_equals(s.str(), str());
+}
+
+String String::offsetGet(Int _offset) const {
+    _offset = offset(_offset);
+    if (UNEXPECTED(_offset == -1)) {
+        return empty_string;
+    } else {
+        zend_uchar c = (zend_uchar) data()[_offset];
+        return String{zend_one_char_string[c]};
+    }
+}
+
+void String::offsetSet(Int _offset, const Variant &value) {
+    _offset = offset(_offset);
+    if (_offset != -1) {
+        auto wr_str = value.toString();
+        if (wr_str.length() > 0) {
+            auto zv = unwrap_ptr();
+            SEPARATE_STRING(zv);
+            Z_STRVAL_P(zv)[_offset] = wr_str.str()->val[0];
+            zend_string_forget_hash_val(Z_STR_P(zv));
+        }
+    }
+}
+
+static Array php_do_pcre_match(String &str, const String &regx, Int flags, Int start_offset, bool global) {
+    pcre_cache_entry *pce; /* Compiled regular expression */
+
+    /* Compile regex or get it from cache. */
+    pce = pcre_get_compiled_regex_cache(regx.str());
+    throwErrorIfOccurred();
+    if (pce == nullptr) {
+        throwError("Failed to compile regular expression");
+        return {};
+    }
+
+    zval count = {};
+    Variant return_value;
+    php_pcre_pce_incref(pce);
+    php_pcre_match_impl(pce, str.str(), &count, return_value.ptr(), global, flags, start_offset);
+    php_pcre_pce_decref(pce);
+    throwErrorIfOccurred();
+
+    if (!return_value.isArray()) {
+        return {};
+    }
+    return Array(return_value);
+}
+
+Array String::match(const String &regx, Int flags, Int start_offset) {
+    return php_do_pcre_match(*this, regx, flags, start_offset, false);
+}
+
+Array String::matchAll(const String &regx, Int flags, Int start_offset) {
+    return php_do_pcre_match(*this, regx, flags, start_offset, true);
+}
+
+String String::substr(Int f, Int l) const {
+    if (!detail::prepareSlice(f, l, length())) {
+        return empty_string;
+    }
+    return {data() + f, (size_t) l};
+}
+
+Array String::split(const String &delim, const Int limit) const {
+    return fn::explode(delim, *this, limit);
+}
+
+String String::stripTags(const String &allow, bool allow_tag_spaces) const {
+    auto new_str = zend_string_init(data(), length(), false);
+    new_str->len = php_strip_tags_ex(new_str->val, new_str->len, allow.data(), allow.length(), allow_tag_spaces);
+    new_str->val[new_str->len] = '\0';
+    return String(new_str, Ctor::Move);
+}
+
+String String::addSlashes() const {
+    return String(php_addslashes(str()), Ctor::Move);
+}
+
+String String::basename(const String &suffix) const {
+    return String(php_basename(data(), length(), suffix.data(), suffix.length()), Ctor::Move);
+}
+
+String String::dirname() const {
+    auto new_str = zend_string_init(data(), length(), false);
+    new_str->len = php_dirname(new_str->val, new_str->len);
+    new_str->val[new_str->len] = '\0';
+    return String(new_str, Ctor::Move);
+}
+
+String String::stripSlashes() const {
+    auto new_str = zend_string_init(data(), length(), false);
+    php_stripslashes(new_str);
+    return String(new_str, Ctor::Move);
+}
+
+}  // namespace php

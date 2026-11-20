@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   pecl-package:
@@ -26,3 +27,8 @@ jobs:
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
             gh release create "$GITHUB_REF_NAME" --title "pixelforge $version" --notes-file CHANGELOG.md --verify-tag
           gh release upload "$GITHUB_REF_NAME" "pixelforge-$version.tgz" package.xml --clobber
+      - name: Verify the README install steps against this release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # releases created with GITHUB_TOKEN don't trigger other workflows, so dispatch it explicitly
+        run: gh workflow run "README install" --repo "$GITHUB_REPOSITORY" --ref main

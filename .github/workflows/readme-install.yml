@@ -4,8 +4,6 @@ name: README install
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
   push:
     branches: [main]
     paths: [README.md, .github/workflows/readme-install.yml]

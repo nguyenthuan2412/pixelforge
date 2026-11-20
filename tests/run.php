@@ -119,7 +119,8 @@ t('composite (gravity, position, tile, blend)', function () use ($F) {
     $r = Image::fromFile("$F/large.jpg")->resize(600)->composite([
         ['input' => $ov, 'gravity' => 'southeast'],
         ['input' => "$F/overlay.png", 'left' => 10, 'top' => 10, 'blend' => 'multiply'],
-        ['input' => file_get_contents("$F/overlay.png"), 'buffer' => true, 'tile' => true, 'blend' => 'soft-light'],
+        ['input' => file_get_contents("$F/overlay.png"), 'tile' => true, 'blend' => 'soft-light'],
+        ['input' => ['buffer' => file_get_contents("$F/overlay.png")], 'gravity' => 'north'],
     ])->jpeg()->toBufferWithInfo();
     eq([$r['info']['width'], $r['info']['height']], [600, 400]);
 });
@@ -132,7 +133,7 @@ t('create canvas', function () {
 t('output formats', function () use ($F, $OUT) {
     $fmts = PixelForge::format();
     foreach (['jpeg', 'png', 'webp', 'gif', 'tiff', 'avif', 'heif', 'jxl'] as $f) {
-        if (!$fmts[$f === 'avif' ? 'heif' : $f]['output']) { echo "    (skip $f: not compiled in)\n"; continue; }
+        if (!$fmts[$f]['output']) { echo "    (skip $f: not available in this libvips)\n"; continue; }
         $img = Image::fromFile("$F/alpha.png")->resize(160)->toFormat($f, ['quality' => 60, 'effort' => 1]);
         $info = $img->toFile("$OUT/out.$f");
         eq($info['width'], 160, $f); ok(filesize("$OUT/out.$f") > 0, $f);

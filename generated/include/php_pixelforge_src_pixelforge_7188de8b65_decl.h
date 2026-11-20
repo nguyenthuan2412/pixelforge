@@ -7,10 +7,11 @@
 
 extern php::Var php_pixelforge_from_file(php::Str path, php::Str failOn, php::Int limitPixels, php::Bool autoOrient, php::Int pages, php::Int page, php::Float density, php::Bool unlimited, php::Bool ignoreIcc);
 extern php::Var php_pixelforge_from_buffer(php::Str data, php::Str failOn, php::Int limitPixels, php::Bool autoOrient, php::Int pages, php::Int page, php::Float density, php::Bool unlimited, php::Bool ignoreIcc);
-extern php::Var php_pixelforge_from_raw(php::Str data, php::Int width, php::Int height, php::Int channels, php::Str depth, php::Bool premultiplied);
-extern php::Var php_pixelforge_create(php::Int width, php::Int height, php::Int channels, php::Float r, php::Float g, php::Float b, php::Float a, php::Str noise, php::Float mean, php::Float sigma);
-extern php::Var php_pixelforge_text(php::Str text, php::Str font, php::Str fontfile, php::Int width, php::Int height, php::Str align, php::Bool justify, php::Int dpi, php::Bool rgba, php::Int spacing, php::Str wrap);
-extern php::Var php_pixelforge_join_new(php::Bool animated, php::Int across, php::Int shim, php::Float r, php::Float g, php::Float b, php::Float a, php::Str halign, php::Str valign);
+extern php::Var php_pixelforge_from_raw(php::Str data, php::Int width, php::Int height, php::Int channels, php::Str depth, php::Bool premultiplied, php::Int limitPixels);
+extern php::Bool php_pixelforge_is_image(php::Str data);
+extern php::Var php_pixelforge_create(php::Int width, php::Int height, php::Int channels, php::Float r, php::Float g, php::Float b, php::Float a, php::Str noise, php::Float mean, php::Float sigma, php::Int limitPixels);
+extern php::Var php_pixelforge_text(php::Str text, php::Str font, php::Str fontfile, php::Int width, php::Int height, php::Str align, php::Bool justify, php::Int dpi, php::Bool rgba, php::Int spacing, php::Str wrap, php::Int limitPixels);
+extern php::Var php_pixelforge_join_new(php::Bool animated, php::Int across, php::Int shim, php::Float r, php::Float g, php::Float b, php::Float a, php::Str halign, php::Str valign, php::Int limitPixels);
 extern php::Bool php_pixelforge_join_add(php::Var h, php::Var input);
 extern php::Var php_pixelforge_clone(php::Var h);
 extern php::Bool php_pixelforge_resize(php::Var h, php::Int width, php::Int height, php::Str fit, php::Str position, php::Float r, php::Float g, php::Float b, php::Float a, php::Bool withoutEnlargement, php::Bool withoutReduction, php::Str kernel, php::Bool fastShrinkOnLoad);

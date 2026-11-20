@@ -142,6 +142,8 @@ extern php::Array php_pixelforge__pixelforge__memory(php::Object &this_);
 
 
 namespace typephp_project_pixelforge {
+extern php::Var class_const__pixelforge__gravity__ALIASES;
+
 }  // namespace typephp_project_pixelforge
 using namespace typephp_project_pixelforge;
 

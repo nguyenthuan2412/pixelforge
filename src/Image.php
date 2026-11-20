@@ -80,7 +80,8 @@ class Image
             (int) $raw['height'],
             (int) $raw['channels'],
             (string) ($raw['depth'] ?? 'uchar'),
-            (bool) ($raw['premultiplied'] ?? false)
+            (bool) ($raw['premultiplied'] ?? false),
+            self::limit($raw)
         ));
     }
 
@@ -99,7 +100,8 @@ class Image
             $c[0], $c[1], $c[2], $c[3],
             (string) ($noise['type'] ?? ''),
             (float) ($noise['mean'] ?? 128),
-            (float) ($noise['sigma'] ?? 30)
+            (float) ($noise['sigma'] ?? 30),
+            self::limit($options)
         ));
     }
 
@@ -121,7 +123,8 @@ class Image
             (int) ($options['dpi'] ?? 0),
             (bool) ($options['rgba'] ?? false),
             (int) ($options['spacing'] ?? 0),
-            (string) ($options['wrap'] ?? 'word')
+            (string) ($options['wrap'] ?? 'word'),
+            self::limit($options)
         ));
     }
 
@@ -139,7 +142,8 @@ class Image
             (int) ($options['shim'] ?? 0),
             $bg[0], $bg[1], $bg[2], $bg[3],
             (string) ($options['halign'] ?? 'left'),
-            (string) ($options['valign'] ?? 'top')
+            (string) ($options['valign'] ?? 'top'),
+            self::limit($options)
         ));
         foreach ($inputs as $in) {
             \pixelforge_join_add($img->h, self::input($in)->handle());
@@ -147,12 +151,28 @@ class Image
         return $img;
     }
 
+    /**
+     * Resolve an input for composite / join / joinChannel / boolean.
+     *
+     * - Image                         used as is
+     * - ['file' => path]              always a file path
+     * - ['buffer' => bytes]           always encoded image bytes
+     * - ['create' => [...]], ['text' => [...]], ['raw' => [...], 'input' => pixels]
+     * - string                        encoded image bytes if they look like an image, otherwise a file path
+     *                                 (image bytes are never used as a file name)
+     */
     private static function input(mixed $in): Image
     {
         if ($in instanceof Image) {
             return $in;
         }
         if (is_array($in)) {
+            if (isset($in['file'])) {
+                return Image::fromFile((string) $in['file']);
+            }
+            if (isset($in['buffer'])) {
+                return Image::fromBuffer((string) $in['buffer']);
+            }
             if (isset($in['create'])) {
                 return Image::create($in['create']);
             }
@@ -160,15 +180,14 @@ class Image
                 return Image::text($in['text']);
             }
             if (isset($in['raw'])) {
-                return Image::fromRaw((string) $in['input'], $in['raw']);
+                return Image::fromRaw((string) ($in['input'] ?? ''), $in['raw']);
             }
+            throw new \InvalidArgumentException('Invalid input array: expected one of file, buffer, create, text, raw');
         }
-        $s = (string) $in;
-        // short strings that exist on disk are paths, everything else is encoded bytes
-        if (strlen($s) < 4096 && !str_contains($s, "\0") && is_file($s)) {
-            return Image::fromFile($s);
+        if (is_string($in) && $in !== '') {
+            return \pixelforge_is_image($in) ? Image::fromBuffer($in) : Image::fromFile($in);
         }
-        return Image::fromBuffer($s);
+        throw new \InvalidArgumentException('Invalid input: expected an Image, a file path, image bytes or an input array');
     }
 
     private static function limit(array $options): int
@@ -463,7 +482,9 @@ class Image
     /** Append channels from another image (Image, path or bytes). */
     public function joinChannel(mixed $images): Image
     {
-        $list = is_array($images) && !isset($images['create']) && !isset($images['text']) ? $images : [$images];
+        $single = is_array($images) && (isset($images['file']) || isset($images['buffer']) || isset($images['create'])
+            || isset($images['text']) || isset($images['raw']));
+        $list = is_array($images) && !$single ? $images : [$images];
         foreach ($list as $img) {
             \pixelforge_join_channel($this->h, self::input($img)->handle());
         }
@@ -531,7 +552,9 @@ class Image
     public function composite(array $layers): Image
     {
         foreach ($layers as $layer) {
-            $input = self::input($layer['input']);
+            $input = !empty($layer['buffer']) && is_string($layer['input'] ?? null)
+                ? Image::fromBuffer($layer['input'])
+                : self::input($layer['input'] ?? null);
             $hasPos = isset($layer['left']) && isset($layer['top']);
             \pixelforge_composite(
                 $this->h,
@@ -786,17 +809,24 @@ class Image
 
 final class Gravity
 {
+    private const ALIASES = [
+        'center' => 'centre', 'centre' => 'centre',
+        'top' => 'north', 'right top' => 'northeast', 'top right' => 'northeast',
+        'right' => 'east', 'right bottom' => 'southeast', 'bottom right' => 'southeast',
+        'bottom' => 'south', 'left bottom' => 'southwest', 'bottom left' => 'southwest',
+        'left' => 'west', 'left top' => 'northwest', 'top left' => 'northwest',
+        'north' => 'north', 'northeast' => 'northeast', 'east' => 'east', 'southeast' => 'southeast',
+        'south' => 'south', 'southwest' => 'southwest', 'west' => 'west', 'northwest' => 'northwest',
+        'entropy' => 'entropy', 'attention' => 'attention',
+    ];
+
     public static function normalise(string $g): string
     {
-        $g = strtolower(trim($g));
-        $map = [
-            'center' => 'centre', 'centre' => 'centre',
-            'top' => 'north', 'right top' => 'northeast', 'top right' => 'northeast',
-            'right' => 'east', 'right bottom' => 'southeast', 'bottom right' => 'southeast',
-            'bottom' => 'south', 'left bottom' => 'southwest', 'bottom left' => 'southwest',
-            'left' => 'west', 'left top' => 'northwest', 'top left' => 'northwest',
-        ];
-        return $map[$g] ?? $g;
+        $key = strtolower(trim($g));
+        if (!isset(self::ALIASES[$key])) {
+            throw new \InvalidArgumentException('Invalid position/gravity: ' . $g);
+        }
+        return self::ALIASES[$key];
     }
 }
 

@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 507bc730262691deeb1d6e56addeb9d7760d7f7b */
+ * Stub hash: 6e34ba81dd4eeb42a0aa0f92d22ed4b6ca24b23c */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_from_file, 0, 9, IS_MIXED, 0)
 	ZEND_ARG_TYPE_INFO(0, path, IS_STRING, 0)
@@ -25,16 +25,21 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_from_buffer, 0, 9, IS
 	ZEND_ARG_TYPE_INFO(0, ignoreIcc, _IS_BOOL, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_from_raw, 0, 6, IS_MIXED, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_from_raw, 0, 7, IS_MIXED, 0)
 	ZEND_ARG_TYPE_INFO(0, data, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, height, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, channels, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, depth, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, premultiplied, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, limitPixels, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_create, 0, 10, IS_MIXED, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_is_image, 0, 1, _IS_BOOL, 0)
+	ZEND_ARG_TYPE_INFO(0, data, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_create, 0, 11, IS_MIXED, 0)
 	ZEND_ARG_TYPE_INFO(0, width, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, height, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, channels, IS_LONG, 0)
@@ -45,9 +50,10 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_create, 0, 10, IS_MIX
 	ZEND_ARG_TYPE_INFO(0, noise, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, mean, IS_DOUBLE, 0)
 	ZEND_ARG_TYPE_INFO(0, sigma, IS_DOUBLE, 0)
+	ZEND_ARG_TYPE_INFO(0, limitPixels, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_text, 0, 11, IS_MIXED, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_text, 0, 12, IS_MIXED, 0)
 	ZEND_ARG_TYPE_INFO(0, text, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, font, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, fontfile, IS_STRING, 0)
@@ -59,9 +65,10 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_text, 0, 11, IS_MIXED
 	ZEND_ARG_TYPE_INFO(0, rgba, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, spacing, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, wrap, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, limitPixels, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_join_new, 0, 9, IS_MIXED, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_join_new, 0, 10, IS_MIXED, 0)
 	ZEND_ARG_TYPE_INFO(0, animated, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, across, IS_LONG, 0)
 	ZEND_ARG_TYPE_INFO(0, shim, IS_LONG, 0)
@@ -71,6 +78,7 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_join_new, 0, 9, IS_MI
 	ZEND_ARG_TYPE_INFO(0, a, IS_DOUBLE, 0)
 	ZEND_ARG_TYPE_INFO(0, halign, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, valign, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, limitPixels, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pixelforge_join_add, 0, 2, _IS_BOOL, 0)
@@ -417,6 +425,7 @@ ZEND_END_ARG_INFO()
 ZEND_FUNCTION(pixelforge_from_file);
 ZEND_FUNCTION(pixelforge_from_buffer);
 ZEND_FUNCTION(pixelforge_from_raw);
+ZEND_FUNCTION(pixelforge_is_image);
 ZEND_FUNCTION(pixelforge_create);
 ZEND_FUNCTION(pixelforge_text);
 ZEND_FUNCTION(pixelforge_join_new);

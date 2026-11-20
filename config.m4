@@ -27,6 +27,16 @@ if test "$PHP_PIXELFORGE" != "no"; then
   fi
   AC_MSG_RESULT([yes ($pf_php_version)])
 
+  dnl ---------------------------------------------------------------- 64-bit only (bundled mpdecimal uses CONFIG_64 + __int128)
+  AC_CHECK_SIZEOF([void *])
+  if test "$ac_cv_sizeof_void_p" != "8"; then
+    AC_MSG_ERROR([pixelforge requires a 64-bit platform])
+  fi
+  AC_MSG_CHECKING([for unsigned __int128])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[unsigned __int128 x = 1; return (int) (x >> 1);]])],
+    [AC_MSG_RESULT([yes])],
+    [AC_MSG_RESULT([no]); AC_MSG_ERROR([pixelforge requires a compiler with unsigned __int128 support])])
+
   dnl ---------------------------------------------------------------- libvips
   if test "$PHP_PIXELFORGE_VIPS" != "no" && test "$PHP_PIXELFORGE_VIPS" != "yes"; then
     export PKG_CONFIG_PATH="$PHP_PIXELFORGE_VIPS/lib/pkgconfig:$PHP_PIXELFORGE_VIPS/lib64/pkgconfig:$PKG_CONFIG_PATH"
@@ -77,7 +87,10 @@ if test "$PHP_PIXELFORGE" != "no"; then
   PHP_ADD_INCLUDE([$pf_srcdir/$pf_phpx/thirdparty/mpdecimal/libmpdec++])
   PHP_ADD_INCLUDE([$pf_srcdir/$pf_phpx/thirdparty/wren-gc/include])
 
-  pf_cxx_sources="generated/extension-pixelforge.cc generated/Image.cc src/pixelforge.cc"
+  pf_cxx_sources="src/pixelforge.cc"
+  for f in `cd $pf_srcdir && ls generated/*.cc`; do
+    pf_cxx_sources="$pf_cxx_sources $f"
+  done
   for f in `cd $pf_srcdir && ls $pf_phpx/src/core/*.cc $pf_phpx/src/std/*.cc $pf_phpx/src/typephp/*.cc | grep -v '_nano\.cc$'`; do
     pf_cxx_sources="$pf_cxx_sources $f"
   done

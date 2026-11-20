@@ -6,10 +6,11 @@
 
 function pixelforge_from_file(string $path, string $failOn, int $limitPixels, bool $autoOrient, int $pages, int $page, float $density, bool $unlimited, bool $ignoreIcc): mixed {}
 function pixelforge_from_buffer(string $data, string $failOn, int $limitPixels, bool $autoOrient, int $pages, int $page, float $density, bool $unlimited, bool $ignoreIcc): mixed {}
-function pixelforge_from_raw(string $data, int $width, int $height, int $channels, string $depth, bool $premultiplied): mixed {}
-function pixelforge_create(int $width, int $height, int $channels, float $r, float $g, float $b, float $a, string $noise, float $mean, float $sigma): mixed {}
-function pixelforge_text(string $text, string $font, string $fontfile, int $width, int $height, string $align, bool $justify, int $dpi, bool $rgba, int $spacing, string $wrap): mixed {}
-function pixelforge_join_new(bool $animated, int $across, int $shim, float $r, float $g, float $b, float $a, string $halign, string $valign): mixed {}
+function pixelforge_from_raw(string $data, int $width, int $height, int $channels, string $depth, bool $premultiplied, int $limitPixels): mixed {}
+function pixelforge_is_image(string $data): bool {}
+function pixelforge_create(int $width, int $height, int $channels, float $r, float $g, float $b, float $a, string $noise, float $mean, float $sigma, int $limitPixels): mixed {}
+function pixelforge_text(string $text, string $font, string $fontfile, int $width, int $height, string $align, bool $justify, int $dpi, bool $rgba, int $spacing, string $wrap, int $limitPixels): mixed {}
+function pixelforge_join_new(bool $animated, int $across, int $shim, float $r, float $g, float $b, float $a, string $halign, string $valign, int $limitPixels): mixed {}
 function pixelforge_join_add(mixed $h, mixed $input): bool {}
 function pixelforge_clone(mixed $h): mixed {}
 

@@ -163,6 +163,14 @@ static VImage withAlphaFor(VImage img, const std::vector<double> &rgba) {
     return img;
 }
 
+static const std::string &oneOf(const std::string &v, std::initializer_list<const char *> allowed, const char *what);
+
+static const std::string &validGravity(const std::string &g, bool allowSmart) {
+    if (allowSmart && (g == "entropy" || g == "attention")) return g;
+    return oneOf(g, {"centre", "north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"},
+                 allowSmart ? "position" : "gravity");
+}
+
 /** Gravity -> offset of an inner (w,h) box within an outer (W,H) box. */
 static void gravityOffset(const std::string &g, int W, int H, int w, int h, int &x, int &y) {
     x = (W - w) / 2;
@@ -212,7 +220,18 @@ static int parseFailOn(const std::string &s) {
     if (v == "none") return VIPS_FAIL_ON_NONE;
     if (v == "truncated") return VIPS_FAIL_ON_TRUNCATED;
     if (v == "error") return VIPS_FAIL_ON_ERROR;
-    return VIPS_FAIL_ON_WARNING;
+    if (v == "warning") return VIPS_FAIL_ON_WARNING;
+    throw VError("Invalid failOn: " + s + " (expected none, truncated, error or warning)");
+}
+
+/** Throws unless `v` is one of `allowed`. */
+static const std::string &oneOf(const std::string &v, std::initializer_list<const char *> allowed, const char *what) {
+    std::string list;
+    for (const char *a : allowed) {
+        if (v == a) return v;
+        list += list.empty() ? a : std::string(", ") + a;
+    }
+    throw VError(std::string("Invalid ") + what + ": " + v + " (expected " + list + ")");
 }
 
 static VipsKernel parseKernel(const std::string &k) {
@@ -222,11 +241,14 @@ static VipsKernel parseKernel(const std::string &k) {
     if (v == "cubic") return VIPS_KERNEL_CUBIC;
     if (v == "mitchell") return VIPS_KERNEL_MITCHELL;
     if (v == "lanczos2") return VIPS_KERNEL_LANCZOS2;
+    if (v == "lanczos3") return VIPS_KERNEL_LANCZOS3;
 #if VIPS_MAJOR_VERSION > 8 || (VIPS_MAJOR_VERSION == 8 && VIPS_MINOR_VERSION >= 17)
     if (v == "mks2013") return VIPS_KERNEL_MKS2013;
     if (v == "mks2021") return VIPS_KERNEL_MKS2021;
+#else
+    if (v == "mks2013" || v == "mks2021") throw VError("kernel " + v + " requires libvips >= 8.17");
 #endif
-    return VIPS_KERNEL_LANCZOS3;
+    throw VError("Invalid kernel: " + k + " (expected nearest, linear, cubic, mitchell, lanczos2, lanczos3, mks2013, mks2021)");
 }
 
 static VImage castLike(const VImage &out, VipsBandFormat fmt) {
@@ -476,9 +498,19 @@ static VImage loadFile(const Source &s, bool random, const std::function<void(vi
     return openWith(s, h.loader, o);
 }
 
+static VImage loadOtherUnchecked(const Source &s);
+
 static VImage loadOther(const Source &s) {
+    VImage img = loadOtherUnchecked(s);
+    if (s.limitPixels > 0 && (long long) img.width() * pageHeight(img) > s.limitPixels)
+        throw VError("Input image exceeds pixel limit");
+    return img;
+}
+
+static VImage loadOtherUnchecked(const Source &s) {
     switch (s.kind) {
         case Source::Create: {
+            if (s.limitPixels > 0 && (long long) s.cw * s.ch > s.limitPixels) throw VError("Input image exceeds pixel limit");
             VImage img;
             if (s.noise == "gaussian") {
                 std::vector<VImage> bands;
@@ -608,6 +640,31 @@ static VImage scaleTo(VImage img, int tw, int th, VipsKernel kernel) {
     return n > 1 ? setPageHeight(img, th) : img;
 }
 
+/** Find where `crop` (an extract_area of `frame`) sits inside `frame`. Byte-exact, early-exit scan. */
+static void locateCrop(const VImage &frame, const VImage &crop, int &x, int &y) {
+    size_t flen = 0, clen = 0;
+    auto *f = static_cast<unsigned char *>(frame.write_to_memory(&flen));
+    auto *c = static_cast<unsigned char *>(crop.write_to_memory(&clen));
+    const int W = frame.width(), H = frame.height(), cw = crop.width(), ch = crop.height();
+    const size_t px = flen / ((size_t) W * H), row = (size_t) cw * px;
+    x = y = 0;
+    bool found = false;
+    for (int y0 = 0; y0 + ch <= H && !found; y0++) {
+        for (int x0 = 0; x0 + cw <= W && !found; x0++) {
+            int r = 0;
+            while (r < ch && memcmp(f + (((size_t) (y0 + r) * W) + x0) * px, c + (size_t) r * row, row) == 0) r++;
+            if (r == ch) {
+                x = x0;
+                y = y0;
+                found = true;
+            }
+        }
+    }
+    g_free(f);
+    g_free(c);
+    if (!found) throw VError("smart crop: could not locate the crop window");
+}
+
 /** Crop (cover) or embed (contain) after the scale step, per frame. */
 static VImage resizePost(VImage img, const ResizeSpec &r) {
     int W = img.width(), H = pageHeight(img);
@@ -616,12 +673,28 @@ static VImage resizePost(VImage img, const ResizeSpec &r) {
     if (r.fit == "cover" && (W > w || H > h)) {
         int cw = std::min(w, W), ch = std::min(h, H);
         bool smart = r.position == "entropy" || r.position == "attention";
+        int interesting = r.position == "entropy" ? VIPS_INTERESTING_ENTROPY : VIPS_INTERESTING_ATTENTION;
         if (smart && nPages(img) == 1) {
-            return img.smartcrop(cw, ch, VImage::option()->set(
-                "interesting", (int) (r.position == "entropy" ? VIPS_INTERESTING_ENTROPY : VIPS_INTERESTING_ATTENTION)));
+            return img.smartcrop(cw, ch, VImage::option()->set("interesting", interesting));
         }
         int x, y;
-        gravityOffset(smart ? "centre" : r.position, W, H, cw, ch, x, y);
+        if (smart) {
+            // animated: crop the first frame with libvips, locate that window, apply it to every frame
+            VImage first = img.extract_area(0, 0, W, H);
+            int ax = 0, ay = 0;
+            VImage crop = first.smartcrop(
+                cw, ch, VImage::option()->set("interesting", interesting)->set("attention_x", &ax)->set("attention_y", &ay));
+            if (interesting == VIPS_INTERESTING_ATTENTION) {
+                // attention_x/y is the centre of the chosen window
+                x = std::max(0, std::min(W - cw, ax - cw / 2));
+                y = std::max(0, std::min(H - ch, ay - ch / 2));
+            } else {
+                // entropy mode doesn't report its window: find the crop inside the first frame
+                locateCrop(first, crop, x, y);
+            }
+        } else {
+            gravityOffset(r.position, W, H, cw, ch, x, y);
+        }
         return perPage(img, [=](VImage f) { return f.extract_area(x, y, cw, ch); });
     }
     if (r.fit == "contain" && (W < w || H < h)) {
@@ -708,6 +781,8 @@ static VImage run(const ImageBox &b) {
             img = loadFile(s, anyRandom || orient);
         } else {
             img = loadOther(s);
+            // join reads its inputs sequentially; materialise it when a later step needs random access
+            if (s.kind == Source::Join && anyRandom) img = img.copy_memory();
         }
         work = (double) img.width() * img.height();
         if (orient && fileLike) img = img.autorot();
@@ -820,7 +895,8 @@ static VipsForeignTiffCompression tiffCompression(const std::string &c) {
     if (v == "zstd") return VIPS_FOREIGN_TIFF_COMPRESSION_ZSTD;
     if (v == "ccittfax4") return VIPS_FOREIGN_TIFF_COMPRESSION_CCITTFAX4;
     if (v == "jp2k") return VIPS_FOREIGN_TIFF_COMPRESSION_JP2K;
-    return VIPS_FOREIGN_TIFF_COMPRESSION_NONE;
+    if (v == "none") return VIPS_FOREIGN_TIFF_COMPRESSION_NONE;
+    throw VError("Invalid tiff compression: " + c + " (expected none, jpeg, deflate, lzw, packbits, webp, zstd, ccittfax4, jp2k)");
 }
 
 static void formatOptions(vips::VOption *opts, const OutSpec &o, const std::string &fmt) {
@@ -1063,7 +1139,8 @@ static VipsBandFormat parseDepth(const std::string &d) {
     if (v == "int") return VIPS_FORMAT_INT;
     if (v == "float") return VIPS_FORMAT_FLOAT;
     if (v == "double") return VIPS_FORMAT_DOUBLE;
-    return VIPS_FORMAT_UCHAR;
+    if (v == "uchar") return VIPS_FORMAT_UCHAR;
+    throw VError("Invalid raw depth: " + d + " (expected uchar, char, ushort, short, uint, int, float, double)");
 }
 
 #define PIXELFORGE_TRY try {
@@ -1136,7 +1213,17 @@ Variant php_pixelforge_from_buffer(String data, String failOn, Int limitPixels, 
     PIXELFORGE_CATCH({})
 }
 
-Variant php_pixelforge_from_raw(String data, Int width, Int height, Int channels, String depth, Bool premultiplied) {
+Bool php_pixelforge_is_image(String data) {
+    PIXELFORGE_TRY ensureInit();
+    if (data.length() < 8) return false;
+    bool found = vips_foreign_find_load_buffer(data.data(), data.length()) != nullptr;
+    vips_error_clear();
+    return found;
+    PIXELFORGE_CATCH(false)
+}
+
+Variant php_pixelforge_from_raw(String data, Int width, Int height, Int channels, String depth, Bool premultiplied,
+                               Int limitPixels) {
     PIXELFORGE_TRY ensureInit();
     if (width <= 0 || height <= 0 || channels < 1 || channels > 4) throw VError("raw: invalid width/height/channels");
     auto s = std::make_shared<Source>();
@@ -1147,12 +1234,14 @@ Variant php_pixelforge_from_raw(String data, Int width, Int height, Int channels
     s->rbands = (int) channels;
     s->rformat = parseDepth(str(depth));
     s->rpremultiplied = premultiplied;
+    s->limitPixels = limitPixels;
+    if (s->limitPixels > 0 && (long long) s->rw * s->rh > s->limitPixels) throw VError("Input image exceeds pixel limit");
     return newBox(s);
     PIXELFORGE_CATCH({})
 }
 
 Variant php_pixelforge_create(Int width, Int height, Int channels, Float r, Float g, Float bl, Float a, String noise,
-                         Float mean, Float sigma) {
+                         Float mean, Float sigma, Int limitPixels) {
     PIXELFORGE_TRY ensureInit();
     if (width <= 0 || height <= 0) throw VError("create(): width and height must be > 0");
     if (channels < 1 || channels > 4) throw VError("create(): channels must be 1-4");
@@ -1162,7 +1251,9 @@ Variant php_pixelforge_create(Int width, Int height, Int channels, Float r, Floa
     s->ch = (int) height;
     s->cbands = (int) channels;
     s->cbg = {r, g, bl, a};
-    s->noise = lower(str(noise));
+    s->noise = oneOf(lower(str(noise)), {"", "gaussian"}, "noise type");
+    s->limitPixels = limitPixels;
+    if (s->limitPixels > 0 && (long long) s->cw * s->ch > s->limitPixels) throw VError("Input image exceeds pixel limit");
     s->noiseMean = mean;
     s->noiseSigma = sigma;
     return newBox(s);
@@ -1170,7 +1261,7 @@ Variant php_pixelforge_create(Int width, Int height, Int channels, Float r, Floa
 }
 
 Variant php_pixelforge_text(String text, String font, String fontfile, Int width, Int height, String align, Bool justify,
-                       Int dpi, Bool rgba, Int spacing, String wrap) {
+                       Int dpi, Bool rgba, Int spacing, String wrap, Int limitPixels) {
     PIXELFORGE_TRY ensureInit();
     auto s = std::make_shared<Source>();
     s->kind = Source::Text;
@@ -1186,12 +1277,13 @@ Variant php_pixelforge_text(String text, String font, String fontfile, Int width
     s->rgba = rgba;
     s->spacing = (int) spacing;
     s->wrap = lower(str(wrap));
+    s->limitPixels = limitPixels;
     return newBox(s);
     PIXELFORGE_CATCH({})
 }
 
 Variant php_pixelforge_join_new(Bool animated, Int across, Int shim, Float r, Float g, Float bl, Float a, String halign,
-                           String valign) {
+                           String valign, Int limitPixels) {
     PIXELFORGE_TRY ensureInit();
     auto s = std::make_shared<Source>();
     s->kind = Source::Join;
@@ -1205,6 +1297,7 @@ Variant php_pixelforge_join_new(Bool animated, Int across, Int shim, Float r, Fl
     };
     s->halign = al(str(halign));
     s->valign = al(str(valign));
+    s->limitPixels = limitPixels;
     return newBox(s);
     PIXELFORGE_CATCH({})
 }
@@ -1237,7 +1330,7 @@ Bool php_pixelforge_resize(Variant h, Int width, Int height, String fit, String 
     s.rs.width = (int) width;
     s.rs.height = (int) height;
     s.rs.fit = lower(str(fit));
-    s.rs.position = lower(str(position));
+    s.rs.position = validGravity(lower(str(position)), true);
     s.rs.background = {r, g, bl, a};
     s.rs.withoutEnlargement = withoutEnlargement;
     s.rs.withoutReduction = withoutReduction;
@@ -1266,9 +1359,9 @@ Bool php_pixelforge_extract(Variant h, Int left, Int top, Int width, Int height)
 Bool php_pixelforge_extend(Variant h, Int top, Int bottom, Int left, Int right, String with, Float r, Float g, Float bl,
                       Float a) {
     int t = (int) top, btm = (int) bottom, l = (int) left, rt = (int) right;
-    std::string mode = lower(str(with));
+    std::string mode;
     std::vector<double> bg{r, g, bl, a};
-    PIXELFORGE_STEP(h, generic(
+    PIXELFORGE_STEP_PRE(h, mode = oneOf(lower(str(with)), {"background", "copy", "repeat", "mirror"}, "extendWith"), generic(
                       [=](VImage img) {
                           int ext = mode == "copy" ? VIPS_EXTEND_COPY
                                     : mode == "repeat" ? VIPS_EXTEND_REPEAT
@@ -1392,8 +1485,8 @@ Bool php_pixelforge_median(Variant h, Int size) {
 
 Bool php_pixelforge_blur(Variant h, Float sigma, String precision, Float minAmplitude) {
     double s = sigma, ma = minAmplitude;
-    std::string p = lower(str(precision));
-    PIXELFORGE_STEP(h, generic([=](VImage img) {
+    std::string p;
+    PIXELFORGE_STEP_PRE(h, p = oneOf(lower(str(precision)), {"integer", "float", "approximate"}, "blur precision"), generic([=](VImage img) {
                    if (s < 0.3) {
                        VImage mask = VImage::new_matrixv(3, 3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
                        mask.set("scale", 9.0);
@@ -1649,7 +1742,7 @@ Bool php_pixelforge_composite(Variant h, Variant overlay, String gravity, Int le
     ImageBox *o = box(overlay);
     if (!b || !o) return false;
     auto ov = snapshot(o);
-    std::string grav = lower(str(gravity));
+    std::string grav = validGravity(lower(str(gravity)), false);
     std::string bl = lower(str(blend));
     int mode = enumFromNick(VIPS_TYPE_BLEND_MODE, bl.empty() ? "over" : bl, "blend mode");
     int l = (int) left, t = (int) top;
@@ -1698,7 +1791,7 @@ Bool php_pixelforge_output(Variant h, String format, Int quality, Bool lossless,
     o.lossless = lossless;
     o.effort = (int) effort;
     o.progressive = progressive;
-    o.chroma = str(chroma);
+    o.chroma = oneOf(str(chroma), {"", "4:2:0", "4:4:4"}, "chromaSubsampling");
     o.mozjpeg = mozjpeg;
     o.compressionLevel = (int) compressionLevel;
     o.palette = palette;
@@ -1709,8 +1802,10 @@ Bool php_pixelforge_output(Variant h, String format, Int quality, Bool lossless,
     o.smartSubsample = smartSubsample;
     o.alphaQuality = (int) alphaQuality;
     o.bitdepth = (int) bitdepth;
-    o.compression = str(compression);
-    o.predictor = str(predictor);
+    o.compression = lower(str(compression));
+    o.predictor = oneOf(lower(str(predictor)), {"", "none", "horizontal", "float"}, "tiff predictor");
+    if (o.format == "tiff" && !o.compression.empty()) tiffCompression(o.compression);
+    if (o.format == "heif" || o.format == "avif") oneOf(o.compression, {"", "av1", "hevc"}, "heif compression");
     o.tile = tile;
     o.tileWidth = (int) tileWidth;
     o.tileHeight = (int) tileHeight;
@@ -2010,6 +2105,27 @@ Array php_pixelforge_versions() {
     PIXELFORGE_CATCH(Array())
 }
 
+/** heifsave can exist without an encoder plugin for a codec: probe by encoding a tiny image (cached). */
+static bool canEncodeHeif(VipsForeignHeifCompression compression) {
+    static int cache[2] = {-1, -1};
+    int &c = cache[compression == VIPS_FOREIGN_HEIF_COMPRESSION_AV1 ? 0 : 1];
+    if (c < 0) {
+        c = 0;
+        if (vips_type_find("VipsOperation", "heifsave_buffer")) {
+            try {
+                VImage px = VImage::black(8, 8, VImage::option()->set("bands", 3)).cast(VIPS_FORMAT_UCHAR).copy(
+                    VImage::option()->set("interpretation", (int) VIPS_INTERPRETATION_sRGB));
+                VipsBlob *blob = px.heifsave_buffer(VImage::option()->set("compression", (int) compression)->set("effort", 0));
+                if (blob) vips_area_unref(VIPS_AREA(blob));
+                c = 1;
+            } catch (const std::exception &) {
+                vips_error_clear();
+            }
+        }
+    }
+    return c == 1;
+}
+
 Array php_pixelforge_formats() {
     PIXELFORGE_TRY ensureInit();
     Array f;
@@ -2023,8 +2139,12 @@ Array php_pixelforge_formats() {
                       {"raw", nullptr, nullptr}};
     for (const F &x : list) {
         Array e;
-        e.set("input", Variant(x.load ? vips_type_find("VipsOperation", x.load) != 0 : std::string(x.name) == "raw"));
-        e.set("output", Variant(x.save ? vips_type_find("VipsOperation", x.save) != 0 : std::string(x.name) == "raw"));
+        std::string name = x.name;
+        bool out = x.save ? vips_type_find("VipsOperation", x.save) != 0 : name == "raw";
+        if (name == "avif") out = canEncodeHeif(VIPS_FOREIGN_HEIF_COMPRESSION_AV1);
+        if (name == "heif") out = canEncodeHeif(VIPS_FOREIGN_HEIF_COMPRESSION_AV1) || canEncodeHeif(VIPS_FOREIGN_HEIF_COMPRESSION_HEVC);
+        e.set("input", Variant(x.load ? vips_type_find("VipsOperation", x.load) != 0 : name == "raw"));
+        e.set("output", Variant(out));
         f.set(x.name, e);
     }
     return f;

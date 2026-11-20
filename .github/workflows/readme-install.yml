@@ -75,6 +75,18 @@ jobs:
           cat /tmp/ctx/Dockerfile
           docker build /tmp/ctx
 
+  dockerfile-alpine:
+    name: README Dockerfile snippet (Alpine + PECL)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          mkdir /tmp/ctx
+          scripts/readme-block.sh "### In your own Dockerfile (Alpine)" dockerfile > /tmp/ctx/Dockerfile
+          echo 'RUN php -m | grep -x pixelforge && php -r "echo PixelForge\\PixelForge::versions()[\"vips\"], PHP_EOL;"' >> /tmp/ctx/Dockerfile
+          cat /tmp/ctx/Dockerfile
+          docker build /tmp/ctx
+
   docker-quickstart:
     name: README Docker quick try
     runs-on: ubuntu-24.04

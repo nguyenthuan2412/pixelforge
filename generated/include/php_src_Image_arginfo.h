@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 77ba09138b7fbfcdc31b897c7c688387bee9f54d */
+ * Stub hash: 9b3b7481e961a31856f16ee36aed51d7cb345079 */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_PixelForge_Image___construct, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, handle, IS_MIXED, 0)
@@ -565,6 +565,13 @@ static zend_class_entry *php_register_class_PixelForge_Gravity(void)
 
 	INIT_NS_CLASS_ENTRY(ce, "PixelForge", "Gravity", class_PixelForge_Gravity_methods);
 	class_entry = zend_register_internal_class_with_flags(&ce, NULL, ZEND_ACC_FINAL);
+
+	zval const_ALIASES_value;
+	ZVAL_EMPTY_ARRAY(&const_ALIASES_value);
+	zend_string *const_ALIASES_name = zend_string_init_interned("ALIASES", sizeof("ALIASES") - 1, true);
+	zend_hash_del(&class_entry->constants_table, const_ALIASES_name);
+	zend_declare_class_constant_ex(class_entry, const_ALIASES_name, &const_ALIASES_value, ZEND_ACC_PRIVATE, NULL);
+	zend_string_release_ex(const_ALIASES_name, true);
 
 	return class_entry;
 }

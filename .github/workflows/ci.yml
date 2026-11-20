@@ -50,6 +50,38 @@ jobs:
       - run: phpize && ./configure && make -j"$(sysctl -n hw.ncpu)"
       - run: NO_INTERACTION=1 REPORT_EXIT_STATUS=1 make test TESTS="tests/"
 
+  alpine:
+    name: phpize · Alpine (musl) · PHP 8.5
+    runs-on: ubuntu-24.04
+    container: php:8.5-cli-alpine
+    steps:
+      - run: apk add --no-cache vips-dev gmp-dev mpfr-dev build-base autoconf pkgconf linux-headers git
+      - uses: actions/checkout@v5
+      - run: phpize && ./configure && make -j"$(nproc)"
+      - run: NO_INTERACTION=1 REPORT_EXIT_STATUS=1 make test TESTS="tests/"
+
+  valgrind:
+    name: valgrind memcheck · PHP 8.5 · system libvips
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: phpize, php-config
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libvips-dev libgmp-dev libmpfr-dev pkg-config valgrind
+      - run: phpize && ./configure CFLAGS="-g -O1" CXXFLAGS="-g -O1" && make -j"$(nproc)"
+      - name: phpt under memcheck (fails on any pixelforge error or leak)
+        env:
+          VALGRIND_OPTS: --suppressions=${{ github.workspace }}/tests/valgrind.supp --num-callers=40
+          PIXELFORGE_CONCURRENCY: '1'
+        run: |
+          NO_INTERACTION=1 make test TESTS="-m tests/" | tee /tmp/memcheck.txt
+          for f in tests/*.mem; do [ -s "$f" ] && { echo "::group::$f"; cat "$f"; echo "::endgroup::"; }; done
+          ! grep -qE "^(FAIL|LEAK)" /tmp/memcheck.txt
+
   docker:
     name: Docker image + full test suite
     runs-on: ubuntu-24.04

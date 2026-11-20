@@ -93,31 +93,11 @@ RUN git clone https://github.com/swoole/typephp.git /opt/typephp \
 ENV PATH=/opt/typephp/bin:$PATH
 
 FROM typephp AS generate
+ARG TYPEPHP_REF
 COPY project.yml /src/pixelforge/project.yml
 COPY src /src/pixelforge/src
-RUN set -eux; cd /src/pixelforge; \
-    tpc.php project.yml --dry --build-dir /tmp/gen --no-progress --no-color -o pixelforge.so; \
-    mkdir -p /out/generated/include; \
-    cp /tmp/gen/extension-pixelforge.cc /out/generated/; \
-    cp "$(find /tmp/gen/src -name Image.cc)" /out/generated/Image.cc; \
-    cp /tmp/gen/include/*.h /out/generated/include/; \
-    # module name: "pixelforge" instead of TypePHP's "typephp_pixelforge"
-    sed -i 's/typephp_pixelforge/pixelforge/g' /out/generated/*.cc /out/generated/include/*.h; \
-    # vendored PHPX runtime (Apache-2.0), only what the extension links
-    P=/opt/typephp/vendor/swoole/phpx; D=/out/deps/phpx; \
-    mkdir -p $D/src $D/thirdparty/mpdecimal/libmpdec $D/thirdparty/mpdecimal/libmpdec++ $D/thirdparty/wren-gc; \
-    cp $P/LICENSE $D/; cp -r $P/include $D/; \
-    for d in core std typephp; do cp -r $P/src/$d $D/src/; done; \
-    find $D/src -name '*_nano.cc' -delete; \
-    cp $P/thirdparty/mpdecimal/COPYRIGHT.txt $D/thirdparty/mpdecimal/; \
-    cp $P/thirdparty/mpdecimal/libmpdec/*.c $P/thirdparty/mpdecimal/libmpdec/*.h $D/thirdparty/mpdecimal/libmpdec/; \
-    rm -f $D/thirdparty/mpdecimal/libmpdec/bench*.c; \
-    sed 's/@MPD_HEADER_CONFIG@/#define MPD_CONFIG_64 1/' $P/thirdparty/mpdecimal/libmpdec/mpdecimal.h.in > $D/thirdparty/mpdecimal/libmpdec/mpdecimal.h; \
-    cp $P/thirdparty/mpdecimal/libmpdec++/decimal.cc $P/thirdparty/mpdecimal/libmpdec++/decimal.hh $D/thirdparty/mpdecimal/libmpdec++/; \
-    cp -r $P/thirdparty/wren-gc/src $P/thirdparty/wren-gc/include $D/thirdparty/wren-gc/; \
-    ls $P/thirdparty/wren-gc; cp $P/thirdparty/wren-gc/LICENSE* $D/thirdparty/wren-gc/ 2>/dev/null || true; \
-    php -r 'foreach (json_decode(file_get_contents("/opt/typephp/vendor/composer/installed.json"), true)["packages"] as $p) if ($p["name"] === "swoole/phpx") echo "phpx ", $p["version"], "\n";' > $D/VERSION; \
-    echo "typephp ${TYPEPHP_REF}" >> $D/VERSION
+COPY scripts/assemble-generated.sh /usr/local/bin/assemble-generated.sh
+RUN assemble-generated.sh /opt/typephp /src/pixelforge /out "${TYPEPHP_REF}"
 
 FROM scratch AS generated
 COPY --from=generate /out/ /

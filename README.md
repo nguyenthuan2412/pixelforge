@@ -71,17 +71,34 @@ pie install nguyenthuan2412/pixelforge
 ```dockerfile
 FROM php:8.5-fpm
 RUN apt-get update && apt-get install -y --no-install-recommends libvips-dev libgmp-dev libmpfr-dev pkg-config \
- && curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.2/pixelforge-0.1.2.tgz \
- && printf "\n" | pecl install pixelforge-0.1.2.tgz \
+ && curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.3/pixelforge-0.1.3.tgz \
+ && printf "\n" | pecl install pixelforge-0.1.3.tgz \
  && docker-php-ext-enable pixelforge \
- && rm pixelforge-0.1.2.tgz && rm -rf /var/lib/apt/lists/*
+ && rm pixelforge-0.1.3.tgz && rm -rf /var/lib/apt/lists/*
 ```
+
+### In your own Dockerfile (Alpine)
+
+```dockerfile
+FROM php:8.5-cli-alpine
+RUN apk add --no-cache --virtual .build vips-dev gmp-dev mpfr-dev build-base autoconf pkgconf linux-headers curl \
+ && curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.3/pixelforge-0.1.3.tgz \
+ && printf "\n" | pecl install pixelforge-0.1.3.tgz \
+ && docker-php-ext-enable pixelforge \
+ && runDeps="$(scanelf --needed --nobanner --format '%n#p' --recursive /usr/local/lib/php/extensions \
+      | tr ',' '\n' | sort -u | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }')" \
+ && apk add --no-cache --virtual .pixelforge-rundeps $runDeps \
+ && rm pixelforge-0.1.3.tgz && apk del .build
+```
+
+Alpine's libheif has no AV1 encoder, so `avif()` isn't available there. `PixelForge::format()` reports which
+formats can be read and written on the current machine.
 
 ### PECL (without PIE)
 
 ```bash
-curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.2/pixelforge-0.1.2.tgz
-pecl install pixelforge-0.1.2.tgz        # press Enter at the libvips prompt to use pkg-config
+curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.3/pixelforge-0.1.3.tgz
+pecl install pixelforge-0.1.3.tgz        # press Enter at the libvips prompt to use pkg-config
 # then add `extension=pixelforge` to your php.ini
 ```
 
@@ -201,7 +218,22 @@ try {
 }
 ```
 
-Bad arguments (an unknown colour, fit or format) throw immediately. Nothing fails silently.
+Bad arguments, such as an unknown colour, fit, position, kernel or format, throw immediately. An invalid value
+is never silently replaced by a default.
+
+**Inputs for `composite()`, `join()`, `joinChannel()` and `boolean()`**
+
+```php
+$logo = Image::fromFile('logo.png');           // an Image
+'logo.png'                                     // a file path
+file_get_contents('logo.png')                  // encoded image bytes (never mistaken for a file name)
+['file' => $path]  /  ['buffer' => $bytes]     // explicit, when the data comes from users
+['create' => ['width' => 10, 'height' => 10, 'channels' => 4, 'background' => 'red']]
+['text' => ['text' => 'Hello', 'rgba' => true]]
+```
+
+When the value comes from user input, use `['file' => …]` or `['buffer' => …]` so that what you pass can't be
+interpreted any other way.
 
 ## Options
 
@@ -219,7 +251,7 @@ Pass `null` for width or height to keep the aspect ratio.
 
 | Option | Values |
 |---|---|
-| `position` / `gravity` | `centre`, `north`, `northeast`, … `northwest`, `top`, `right bottom`, … , `entropy`, `attention` (smart crop) |
+| `position` / `gravity` | `centre`, `north`, `northeast`, … `northwest`, `top`, `right bottom`, … , `entropy`, `attention` (smart crop; for animations the first frame picks the window) |
 | `background` | `'white'`, `'#ff0000'`, `'#ff000080'`, `[255, 0, 0, 0.5]`, `'transparent'` |
 | `withoutEnlargement` / `withoutReduction` | `true` to never upscale / downscale |
 | `kernel` | `lanczos3` *(default)*, `lanczos2`, `nearest`, `linear`, `cubic`, `mitchell`, `mks2013`, `mks2021` |
@@ -247,7 +279,7 @@ Everything is in the `PixelForge` namespace.
 | Area | Methods |
 |---|---|
 | **Open** | `Image::fromFile($path, $o)`, `Image::fromBuffer($bytes, $o)`, `Image::fromRaw($pixels, [width, height, channels])`, `Image::create([...])`, `Image::text([...])`, `Image::join([...], [animated, across])` |
-| **Open options** | `animated`, `page`, `pages`, `autoOrient`, `failOn`, `limitInputPixels`, `density` (SVG/PDF DPI), `ignoreIcc` |
+| **Open options** | `animated`, `page`, `pages`, `autoOrient`, `failOn`, `limitInputPixels` (default 268 MP; `false` to disable; applies to every source, including `create`, `text`, `fromRaw` and `join`), `density` (SVG/PDF DPI), `ignoreIcc` |
 | **Resize & crop** | `resize`, `extract(['left','top','width','height'])`, `extend(int\|[top, bottom, left, right, background, extendWith])`, `trim()` |
 | **Rotate & flip** | `rotate(?angle)` *(no angle = EXIF auto-orient)*, `autoOrient`, `flip`, `flop`, `affine` |
 | **Adjust** | `sharpen`, `blur`, `median`, `gamma`, `negate`, `normalise`, `clahe`, `threshold`, `linear`, `modulate(['brightness','saturation','hue'])`, `tint`, `greyscale` |
@@ -297,7 +329,7 @@ pixelforge also hands freed memory back to the OS after every image (`PIXELFORGE
 | `Class "PixelForge\Image" not found` | The extension isn't loaded: check `php --ri pixelforge` and your `extension=pixelforge` line |
 | PIE: `git clone --mirror git@github.com:…` / `Could not read from remote repository` | GitHub API rate limit for anonymous Composer. Run `export COMPOSER_AUTH='{"github-oauth":{"github.com":"<a GitHub token>"}}'` and retry, or use the PECL steps |
 | `pecl install https://…` fails | Download the `.tgz` first, then `pecl install pixelforge-x.y.z.tgz` |
-| `Output format not available: jxl` | Your libvips was built without that codec. See [Limitations](#limitations) |
+| `Output format not available: jxl` / `heifsave: Unsupported compression` | Your libvips (or libheif) was built without that codec. `PixelForge::format()` lists what works. See [Limitations](#limitations) |
 | `Fontconfig error` with `Image::text()` | Install a font config: `apt install fontconfig-config fonts-dejavu-core` |
 
 ## Limitations

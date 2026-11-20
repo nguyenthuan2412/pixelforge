@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.1.3 — 2026-11-20
+
+Everything from the 0.1.2 review list, plus what the new checks found:
+
+- **No silent defaults:** unknown `position`/`gravity`, `kernel`, `failOn`, `extendWith`, blur `precision`,
+  `chromaSubsampling`, TIFF `compression`/`predictor`, HEIF `compression`, raw `depth` and noise `type` now throw
+  instead of quietly falling back.
+- **Unambiguous inputs** for `composite`/`join`/`joinChannel`/`boolean`: encoded image bytes are never used as a file
+  name, and `['file' => …]` / `['buffer' => …]` say explicitly what a value is. Unknown input shapes throw.
+- `limitInputPixels` also applies to `create`, `text`, `fromRaw` and `join`.
+- Smart crop (`entropy` / `attention`) on animated images: the first frame picks the window, which is then applied to
+  every frame. Previously this fell back to centre silently.
+- `join()` followed by an operation that needs random access (smart crop, `rotate(90)`, `flip`, `trim`) no longer
+  fails with "out of order read". Found with valgrind.
+- `PixelForge::format()` probes HEIF/AVIF encoders, so it reports `avif` as unavailable when libheif has no AV1 encoder
+  (e.g. Alpine).
+- Builds on Alpine (musl). `configure` checks for a 64-bit platform with `__int128`.
+- New tests: corrupted/truncated input fuzz, strict options, inputs and limits, animated smart crop.
+- New CI: Alpine, valgrind memcheck (pixelforge code is clean; third-party libheif reports on corrupt AVIF are
+  suppressed), README snippet for Alpine.
+
 ## 0.1.2 — 2026-11-20
 
 - `timeout()` now works below one second (libvips progress only counts whole seconds; a monotonic clock is used instead).

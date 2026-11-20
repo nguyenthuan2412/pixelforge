@@ -1,6 +1,6 @@
 name: pixelforge
 mode: ext
-version: 0.1.2
+version: 0.1.3
 cxx-std: c++17
 sources:
   - src

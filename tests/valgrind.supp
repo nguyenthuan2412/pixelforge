@@ -1,0 +1,14 @@
+# Third-party reports seen when decoding deliberately corrupted AVIF/HEIF in tests/006-corrupt-input.phpt.
+# They are inside libheif's decoder (no pixelforge frames); keep pixelforge's own code under full memcheck.
+{
+   libheif-decode-cond
+   Memcheck:Cond
+   ...
+   fun:heif_decode_image
+}
+{
+   libheif-decode-value8
+   Memcheck:Value8
+   ...
+   fun:heif_decode_image
+}

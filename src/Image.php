@@ -803,7 +803,7 @@ final class Gravity
 final class Color
 {
     /**
-     * Accepts '#rgb', '#rrggbb', '#rrggbbaa', 'transparent', 'white', 'black',
+     * Accepts '#rgb', '#rgba', '#rrggbb', '#rrggbbaa', 'transparent', common CSS names ('red', 'navy', ...),
      * [r,g,b] or [r,g,b,alpha 0..1] or ['r'=>..,'g'=>..,'b'=>..,'alpha'=>..].
      * @return float[] r,g,b,a in 0..255
      */
@@ -820,11 +820,16 @@ final class Color
         if ($s === 'transparent') {
             return [0.0, 0.0, 0.0, 0.0];
         }
-        if ($s === 'white') {
-            return [255.0, 255.0, 255.0, 255.0];
-        }
-        if ($s === 'black') {
-            return [0.0, 0.0, 0.0, 255.0];
+        $named = [
+            'white' => 'ffffff', 'black' => '000000', 'red' => 'ff0000', 'lime' => '00ff00', 'green' => '008000',
+            'blue' => '0000ff', 'yellow' => 'ffff00', 'cyan' => '00ffff', 'aqua' => '00ffff', 'magenta' => 'ff00ff',
+            'fuchsia' => 'ff00ff', 'gray' => '808080', 'grey' => '808080', 'silver' => 'c0c0c0', 'maroon' => '800000',
+            'olive' => '808000', 'navy' => '000080', 'teal' => '008080', 'purple' => '800080', 'orange' => 'ffa500',
+            'pink' => 'ffc0cb', 'brown' => 'a52a2a', 'gold' => 'ffd700', 'indigo' => '4b0082', 'violet' => 'ee82ee',
+            'lightgray' => 'd3d3d3', 'lightgrey' => 'd3d3d3', 'darkgray' => 'a9a9a9', 'darkgrey' => 'a9a9a9',
+        ];
+        if (isset($named[$s])) {
+            $s = $named[$s];
         }
         if (str_starts_with($s, '#')) {
             $s = substr($s, 1);
@@ -836,7 +841,7 @@ final class Color
             }
             $s = $e;
         }
-        if (strlen($s) !== 6 && strlen($s) !== 8) {
+        if ((strlen($s) !== 6 && strlen($s) !== 8) || !preg_match('/^[0-9a-f]+$/', $s)) {
             throw new \InvalidArgumentException('Invalid colour: ' . (string) $c);
         }
         $a = strlen($s) === 8 ? (float) hexdec(substr($s, 6, 2)) : 255.0;

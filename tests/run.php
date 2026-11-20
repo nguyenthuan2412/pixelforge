@@ -8,6 +8,10 @@ $F = __DIR__ . '/../fixtures';
 $OUT = sys_get_temp_dir() . '/pixelforge-tests';
 @mkdir($OUT, 0777, true);
 $pass = 0; $fail = 0;
+// Any warning / notice / deprecation is a test failure (silent fallbacks must not slip through).
+set_error_handler(function (int $no, string $msg, string $file, int $line) {
+    throw new ErrorException($msg, 0, $no, $file, $line);
+});
 
 function t(string $name, callable $fn): void {
     global $pass, $fail;
@@ -235,6 +239,97 @@ t('metadata extras', function () use ($F) {
     eq($m['chromaSubsampling'], '4:4:4'); eq($m['autoOrient'], ['width' => 6000, 'height' => 4000]);
     $s = Image::fromFile("$F/overlay.png")->stats();
     ok(isset($s['dominant']['r'], $s['entropy'], $s['sharpness']));
+});
+t('API sweep: every public method with documented options', function () use ($F, $OUT) {
+    $src = fn () => Image::fromFile("$F/alpha.png")->resize(120);
+    $calls = [
+        'resize fits' => fn () => array_map(fn ($fit) => $src()->resize(60, 40, ['fit' => $fit])->png()->toBuffer(), ['cover', 'contain', 'fill', 'inside', 'outside']),
+        'resize gravities' => fn () => array_map(fn ($g) => $src()->resize(50, 20, ['position' => $g])->png()->toBuffer(),
+            ['centre', 'center', 'north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest',
+             'top', 'right top', 'right', 'right bottom', 'bottom', 'left bottom', 'left', 'left top', 'entropy', 'attention']),
+        'resize width/height in options' => fn () => $src()->resize(null, null, ['width' => 30, 'height' => 30])->png()->toBuffer(),
+        'resize withoutReduction' => fn () => $src()->resize(10, null, ['withoutReduction' => true])->png()->toBuffer(),
+        'extend background colour' => fn () => $src()->extend(['top' => 2, 'bottom' => 2, 'left' => 2, 'right' => 2, 'background' => 'navy'])->png()->toBuffer(),
+        'extend copy/repeat' => fn () => [$src()->extend(['left' => 3, 'extendWith' => 'copy'])->png()->toBuffer(), $src()->extend(['left' => 3, 'extendWith' => 'repeat'])->png()->toBuffer()],
+        'trim options' => fn () => $src()->trim(['threshold' => 20, 'background' => 'white', 'lineArt' => true])->png()->toBuffer(),
+        'rotate arbitrary + background' => fn () => $src()->rotate(30, ['background' => 'red'])->png()->toBuffer(),
+        'rotate negative / 360+' => fn () => [$src()->rotate(-90)->png()->toBuffer(), $src()->rotate(450)->png()->toBuffer()],
+        'affine options' => fn () => $src()->affine([1, 0.2, 0, 1], ['background' => 'white', 'interpolator' => 'nohalo', 'idx' => 1, 'odx' => 2])->png()->toBuffer(),
+        'sharpen full options' => fn () => $src()->sharpen(['sigma' => 1, 'm1' => 0.5, 'm2' => 3, 'x1' => 2, 'y2' => 10, 'y3' => 20])->png()->toBuffer(),
+        'blur options array' => fn () => $src()->blur(['sigma' => 2, 'precision' => 'approximate', 'minAmplitude' => 0.1])->png()->toBuffer(),
+        'gamma in/out' => fn () => $src()->gamma(2.2, 3.0)->png()->toBuffer(),
+        'normalise / normalize' => fn () => [$src()->normalise(['lower' => 2, 'upper' => 98])->png()->toBuffer(), $src()->normalize()->png()->toBuffer()],
+        'threshold rgb' => fn () => $src()->threshold(100, ['greyscale' => false])->png()->toBuffer(),
+        'modulate lightness' => fn () => $src()->modulate(['lightness' => 20])->png()->toBuffer(),
+        'tint named / array' => fn () => [$src()->tint('orange')->png()->toBuffer(), $src()->tint([10, 200, 30])->png()->toBuffer()],
+        'grayscale alias / toColorspace' => fn () => [$src()->grayscale()->png()->toBuffer(), $src()->toColorspace('b-w')->png()->toBuffer()],
+        'colourspaces' => fn () => array_map(fn ($c) => $src()->toColourspace($c)->tiff()->toBuffer(), ['srgb', 'b-w', 'rgb16', 'grey16', 'lab', 'cmyk', 'xyz', 'hsv']),
+        'extractChannel all names' => fn () => array_map(fn ($c) => $src()->extractChannel($c)->png()->toBuffer(), ['red', 'green', 'blue', 'alpha', 0, 3]),
+        'composite create/text inputs' => fn () => $src()->composite([
+            ['input' => ['create' => ['width' => 10, 'height' => 10, 'channels' => 4, 'background' => 'red']], 'gravity' => 'northwest'],
+            ['input' => ['text' => ['text' => 'hi', 'rgba' => true]], 'left' => 5, 'top' => 5, 'premultiplied' => false],
+        ])->png()->toBuffer(),
+        'composite blend modes' => fn () => array_map(fn ($b) => $src()->composite([['input' => "$F/overlay.png", 'blend' => $b]])->png()->toBuffer(),
+            ['over', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'colour-dodge', 'colour-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'dest-over', 'xor', 'add', 'saturate']),
+        'jpeg options' => fn () => $src()->flatten()->jpeg(['quality' => 50, 'progressive' => true, 'chromaSubsampling' => '4:4:4', 'mozjpeg' => true, 'optimiseCoding' => false])->toBuffer(),
+        'png options' => fn () => $src()->png(['compressionLevel' => 9, 'progressive' => true, 'adaptiveFiltering' => true, 'palette' => true, 'quality' => 60, 'effort' => 1, 'colours' => 8, 'dither' => 0.5])->toBuffer(),
+        'webp options' => fn () => [$src()->webp(['quality' => 50, 'alphaQuality' => 50, 'smartSubsample' => true, 'effort' => 0, 'minSize' => true, 'mixed' => true])->toBuffer(), $src()->webp(['nearLossless' => true])->toBuffer(), $src()->webp(['nearLossless' => 40])->toBuffer()],
+        'avif/heif options' => fn () => [$src()->avif(['quality' => 40, 'effort' => 0, 'chromaSubsampling' => '4:2:0', 'lossless' => false])->toBuffer(), $src()->heif(['compression' => 'av1', 'effort' => 0])->toBuffer()],
+        'gif options' => fn () => $src()->gif(['colours' => 16, 'effort' => 1, 'dither' => 0, 'interFrameMaxError' => 5, 'interPaletteMaxError' => 5, 'reuse' => true, 'loop' => 2, 'progressive' => true])->toBuffer(),
+        'tiff options' => fn () => array_map(fn ($c) => $src()->tiff(['compression' => $c, 'predictor' => 'horizontal', 'tile' => true, 'tileWidth' => 64, 'tileHeight' => 64])->toBuffer(), ['none', 'jpeg', 'deflate', 'lzw', 'packbits', 'webp']),
+        'tiff zstd (optional in libtiff)' => function () use ($src) {
+            try { $src()->tiff(['compression' => 'zstd', 'predictor' => 'horizontal'])->toBuffer(); }
+            catch (PixelForgeException $e) { if (!str_contains($e->getMessage(), 'not configured')) throw $e; }
+        },
+        'tiff pyramid' => fn () => $src()->tiff(['pyramid' => true, 'compression' => 'deflate'])->toBuffer(),
+        'toFormat aliases' => fn () => [$src()->toFormat('jpg')->toBuffer(), $src()->toFormat('tif')->toBuffer()],
+        'toBuffer(format) override' => fn () => $src()->toBuffer('webp'),
+        'toFile infers format from extension' => fn () => array_map(fn ($e) => $src()->toFile("$OUT/sweep.$e"), ['jpg', 'jpeg', 'png', 'webp', 'gif', 'tif', 'tiff', 'avif', 'heic']),
+        'keep flags' => fn () => [$src()->keepExif()->keepIccProfile()->keepXmp()->jpeg()->toBuffer(), $src()->withMetadata()->png()->toBuffer()],
+        'withIccProfile builtins' => fn () => array_map(fn ($p) => $src()->withIccProfile($p)->jpeg()->toBuffer(), ['srgb', 'p3', 'cmyk']),
+        'withExifMerge' => fn () => $src()->withExifMerge(['IFD0' => ['Software' => 'pixelforge']])->jpeg()->toBuffer(),
+        'tile layouts' => fn () => array_map(fn ($l) => Image::fromFile("$F/alpha.png")->tile(['size' => 128, 'layout' => $l, 'overlap' => 1])->toBuffer(), ['dz', 'zoomify', 'google', 'iiif', 'iiif3']),
+        'fromBuffer options' => fn () => Image::fromBuffer(file_get_contents("$F/large.jpg"), ['failOn' => 'none', 'limitInputPixels' => false, 'autoOrient' => true, 'ignoreIcc' => true])->resize(10)->toBuffer(),
+        'fromFile pages/page' => fn () => Image::fromFile("$F/alpha.png", ['pages' => 1, 'page' => 0, 'density' => 150, 'unlimited' => true])->toBuffer(),
+        'create 1/2/3/4 channels' => fn () => array_map(fn ($c) => Image::create(['width' => 8, 'height' => 8, 'channels' => $c, 'background' => 'gray'])->png()->toBuffer(), [1, 2, 3, 4]),
+        'text options' => fn () => Image::text(['text' => 'pixelforge pixelforge', 'font' => 'sans 12', 'width' => 60, 'align' => 'center', 'justify' => true, 'spacing' => 2, 'wrap' => 'word-char'])->png()->toBuffer(),
+        'join options' => fn () => Image::join(["$F/overlay.png", "$F/overlay.png"], ['across' => 2, 'shim' => 3, 'background' => 'red', 'halign' => 'center', 'valign' => 'bottom'])->png()->toBuffer(),
+        'static helpers' => fn () => [PixelForge::versions(), PixelForge::format(), PixelForge::memory(), PixelForge::concurrency()],
+    ];
+    $failed = [];
+    foreach ($calls as $name => $fn) {
+        try { $fn(); } catch (Throwable $e) { $failed[] = "$name: " . get_class($e) . ' ' . $e->getMessage(); }
+    }
+    ok(!$failed, implode("\n    ", $failed));
+});
+t('invalid input is rejected with a clear exception (no silent fallback)', function () use ($F) {
+    $cases = [
+        'bad colour'        => [InvalidArgumentException::class, fn () => Image::create(['width' => 4, 'height' => 4, 'background' => 'rdd'])],
+        'bad hex'           => [InvalidArgumentException::class, fn () => Image::create(['width' => 4, 'height' => 4, 'background' => '#zzzzzz'])],
+        'bad channel name'  => [InvalidArgumentException::class, fn () => Image::fromFile("$F/alpha.png")->extractChannel('purple')],
+        'bad fit'           => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->resize(10, 10, ['fit' => 'stretch'])],
+        'bad format'        => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->toFormat('bmp')],
+        'bad file ext'      => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->toFile('/tmp/x.bmp')],
+        'bad colourspace'   => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->toColourspace('rainbow')],
+        'bad blend'         => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->composite([['input' => "$F/overlay.png", 'blend' => 'nope']])],
+        'bad boolean op'    => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->bandbool('nand')],
+        'bad tile layout'   => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->tile(['layout' => 'nope'])->toBuffer()],
+        'convolve mismatch' => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->convolve(['width' => 3, 'height' => 3, 'kernel' => [1, 2]])],
+        'recomb not square' => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->recomb([[1, 2]])],
+        'channel range'     => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->extractChannel(9)->toBuffer()],
+        'create size'       => [PixelForgeException::class, fn () => Image::create(['width' => 0, 'height' => 4])],
+        'create channels'   => [PixelForgeException::class, fn () => Image::create(['width' => 4, 'height' => 4, 'channels' => 7])],
+        'raw too small'     => [PixelForgeException::class, fn () => Image::fromRaw('abc', ['width' => 10, 'height' => 10, 'channels' => 3])->toBuffer()],
+        'empty buffer'      => [PixelForgeException::class, fn () => Image::fromBuffer('')],
+        'animated size'     => [PixelForgeException::class, fn () => Image::join([Image::create(['width' => 4, 'height' => 4]), Image::create(['width' => 5, 'height' => 4])], ['animated' => true])->toBuffer()],
+        'unwritable path'   => [PixelForgeException::class, fn () => Image::fromFile("$F/alpha.png")->toFile('/nonexistent-dir/x.png')],
+    ];
+    $problems = [];
+    foreach ($cases as $name => [$expected, $fn]) {
+        try { $fn(); $problems[] = "$name: no exception"; }
+        catch (Throwable $e) { if (!$e instanceof $expected) $problems[] = "$name: got " . get_class($e) . ' (' . $e->getMessage() . ')'; }
+    }
+    ok(!$problems, implode("\n    ", $problems));
 });
 t('global config', function () {
     PixelForge::concurrency(2); eq(PixelForge::concurrency(), 2);

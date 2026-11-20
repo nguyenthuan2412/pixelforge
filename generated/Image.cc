@@ -2715,29 +2715,30 @@ php::Array php_pixelforge__color__parse(php::Object &this_, php::Var c) {
     zend_function * tmp_var_19;
     php::Var tmp_var_20;
     php::Array tmp_var_21;
-    php::Array tmp_var_22;
-    php::Array tmp_var_23;
+    php::Array named;
+    zend_function * tmp_var_22;
+    zend_function * tmp_var_23;
     zend_function * tmp_var_24;
-    zend_function * tmp_var_25;
-    zend_function * tmp_var_26;
-    php::Var tmp_var_27;
-    php::Bool tmp_var_28 = 0;
-    zend_function * tmp_var_29;
-    php::Var tmp_var_30;
-    php::Bool tmp_var_31 = 0;
+    php::Var tmp_var_25;
+    php::Bool tmp_var_26 = 0;
+    zend_function * tmp_var_27;
+    php::Var tmp_var_28;
+    php::Bool tmp_var_29 = 0;
     php::Str e;
     php::Int i = 0;
-    zend_function * tmp_var_32;
+    zend_function * tmp_var_30;
+    php::Var tmp_var_31;
     php::Var tmp_var_33;
+    php::Var tmp_var_34;
     php::Var tmp_var_35;
-    php::Var tmp_var_36;
+    zend_function * tmp_var_36;
     php::Var tmp_var_37;
-    zend_function * tmp_var_38;
-    php::Var tmp_var_39;
-    php::Bool tmp_var_40 = 0;
-    zend_function * tmp_var_41;
-    php::Var tmp_var_42;
-    php::Bool tmp_var_43 = 0;
+    php::Bool tmp_var_38 = 0;
+    zend_function * tmp_var_39;
+    php::Var tmp_var_40;
+    php::Bool tmp_var_41 = 0;
+    php::Bool tmp_var_42 = 0;
+    zend_function * tmp_var_43;
     zend_function * tmp_var_45;
     php::Var tmp_var_46;
     zend_function * tmp_var_47;
@@ -2831,95 +2832,119 @@ php::Array php_pixelforge__color__parse(php::Object &this_, php::Var c) {
         });
         return tmp_var_21;
     }
-    if (php::toBool(php::same(s, get_str(233)))) {
-        tmp_var_22 = (php::Array{
-            php::Var(255.0), 
-            php::Var(255.0), 
-            php::Var(255.0), 
-            php::Var(255.0)
-        });
-        return tmp_var_22;
+    named = php::Array{
+        { get_str(234).str(), php::Var(get_str(233)) }, 
+        { get_str(236).str(), php::Var(get_str(235)) }, 
+        { get_str(129).str(), php::Var(get_str(237)) }, 
+        { get_str(239).str(), php::Var(get_str(238)) }, 
+        { get_str(130).str(), php::Var(get_str(240)) }, 
+        { get_str(131).str(), php::Var(get_str(241)) }, 
+        { get_str(243).str(), php::Var(get_str(242)) }, 
+        { get_str(245).str(), php::Var(get_str(244)) }, 
+        { get_str(246).str(), php::Var(get_str(244)) }, 
+        { get_str(248).str(), php::Var(get_str(247)) }, 
+        { get_str(249).str(), php::Var(get_str(247)) }, 
+        { get_str(251).str(), php::Var(get_str(250)) }, 
+        { get_str(252).str(), php::Var(get_str(250)) }, 
+        { get_str(254).str(), php::Var(get_str(253)) }, 
+        { get_str(256).str(), php::Var(get_str(255)) }, 
+        { get_str(258).str(), php::Var(get_str(257)) }, 
+        { get_str(260).str(), php::Var(get_str(259)) }, 
+        { get_str(262).str(), php::Var(get_str(261)) }, 
+        { get_str(264).str(), php::Var(get_str(263)) }, 
+        { get_str(266).str(), php::Var(get_str(265)) }, 
+        { get_str(268).str(), php::Var(get_str(267)) }, 
+        { get_str(270).str(), php::Var(get_str(269)) }, 
+        { get_str(272).str(), php::Var(get_str(271)) }, 
+        { get_str(274).str(), php::Var(get_str(273)) }, 
+        { get_str(276).str(), php::Var(get_str(275)) }, 
+        { get_str(278).str(), php::Var(get_str(277)) }, 
+        { get_str(279).str(), php::Var(get_str(277)) }, 
+        { get_str(281).str(), php::Var(get_str(280)) }, 
+        { get_str(282).str(), php::Var(get_str(280)) }
+    };
+    if (php::toBool(php::exists(named, {{php::ArrayDimFetch, php::Var(s)}}))) {
+        s = named.item(s, false);
     }
-    if (php::toBool(php::same(s, get_str(234)))) {
-        tmp_var_23 = (php::Array{
-            php::Var(0.0), 
-            php::Var(0.0), 
-            php::Var(0.0), 
-            php::Var(255.0)
-        });
-        return tmp_var_23;
-    }
-    if (get_function_resolution_cache(FunctionResolutionCacheId{16}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{16}) = php::fn::function_exists(get_str(235)) ? 1 : 2; }
-    tmp_var_24 = get_function_resolution_cache(FunctionResolutionCacheId{16}) == 1 ? get_func(RequestFuncId{8}, get_str(235)) : get_persistent_func(PersistentFuncId{10}, get_str(236));
-    if (php::toBool(php::call(tmp_var_24, php::VarList{s, get_str(237)}))) {
-        if (get_function_resolution_cache(FunctionResolutionCacheId{17}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{17}) = php::fn::function_exists(get_str(238)) ? 1 : 2; }
-        tmp_var_25 = get_function_resolution_cache(FunctionResolutionCacheId{17}) == 1 ? get_func(RequestFuncId{9}, get_str(238)) : get_persistent_func(PersistentFuncId{11}, get_str(239));
-        s = php::call(tmp_var_25, php::VarList{s, 1L});
+    if (get_function_resolution_cache(FunctionResolutionCacheId{16}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{16}) = php::fn::function_exists(get_str(283)) ? 1 : 2; }
+    tmp_var_22 = get_function_resolution_cache(FunctionResolutionCacheId{16}) == 1 ? get_func(RequestFuncId{8}, get_str(283)) : get_persistent_func(PersistentFuncId{10}, get_str(284));
+    if (php::toBool(php::call(tmp_var_22, php::VarList{s, get_str(285)}))) {
+        if (get_function_resolution_cache(FunctionResolutionCacheId{17}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{17}) = php::fn::function_exists(get_str(286)) ? 1 : 2; }
+        tmp_var_23 = get_function_resolution_cache(FunctionResolutionCacheId{17}) == 1 ? get_func(RequestFuncId{9}, get_str(286)) : get_persistent_func(PersistentFuncId{11}, get_str(287));
+        s = php::call(tmp_var_23, php::VarList{s, 1L});
     }
     if (get_function_resolution_cache(FunctionResolutionCacheId{18}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{18}) = php::fn::function_exists(get_str(50)) ? 1 : 2; }
-    tmp_var_26 = get_function_resolution_cache(FunctionResolutionCacheId{18}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
-    tmp_var_27 = php::call(tmp_var_26, php::VarList{s});
-    tmp_var_28 = php::toBool(php::same(tmp_var_27, 3L));
-    tmp_var_27.unset();
+    tmp_var_24 = get_function_resolution_cache(FunctionResolutionCacheId{18}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
+    tmp_var_25 = php::call(tmp_var_24, php::VarList{s});
+    tmp_var_26 = php::toBool(php::same(tmp_var_25, 3L));
+    tmp_var_25.unset();
     if (php::toBool([&]() -> bool {
-        if (!(php::toBool(tmp_var_28))) {
+        if (!(php::toBool(tmp_var_26))) {
             if (get_function_resolution_cache(FunctionResolutionCacheId{19}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{19}) = php::fn::function_exists(get_str(50)) ? 1 : 2; }
-            tmp_var_29 = get_function_resolution_cache(FunctionResolutionCacheId{19}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
-            tmp_var_30 = php::call(tmp_var_29, php::VarList{s});
-            tmp_var_31 = php::toBool(php::same(tmp_var_30, 4L));
-            tmp_var_30.unset();
-            return php::toBool(tmp_var_31);
+            tmp_var_27 = get_function_resolution_cache(FunctionResolutionCacheId{19}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
+            tmp_var_28 = php::call(tmp_var_27, php::VarList{s});
+            tmp_var_29 = php::toBool(php::same(tmp_var_28, 4L));
+            tmp_var_28.unset();
+            return php::toBool(tmp_var_29);
         }
         return true;
     }())) {
         e = php::empty_string;
         i = php::toInt(0L);
         
-        for (;[&]() -> bool {        bool tmp_var_34 = true;
+        for (;[&]() -> bool {        bool tmp_var_32 = true;
         if (get_function_resolution_cache(FunctionResolutionCacheId{20}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{20}) = php::fn::function_exists(get_str(50)) ? 1 : 2; }
-        tmp_var_32 = get_function_resolution_cache(FunctionResolutionCacheId{20}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
-        tmp_var_33 = php::call(tmp_var_32, php::VarList{s});
-        tmp_var_35 = php::toBool(((php::Var(i)) < (php::Var(tmp_var_33))));
-        tmp_var_33.unset();
-        tmp_var_34 = php::toBool(tmp_var_35);
-        return tmp_var_34;        }(); ++i) {
-            tmp_var_36 = s.item(i, false);
-            tmp_var_37 = s.item(i, false);
-            (e.append(php::concat({php::toString(tmp_var_36), php::toString(tmp_var_37)})), e);
-            tmp_var_36.unset();
-            tmp_var_37.unset();
+        tmp_var_30 = get_function_resolution_cache(FunctionResolutionCacheId{20}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
+        tmp_var_31 = php::call(tmp_var_30, php::VarList{s});
+        tmp_var_33 = php::toBool(((php::Var(i)) < (php::Var(tmp_var_31))));
+        tmp_var_31.unset();
+        tmp_var_32 = php::toBool(tmp_var_33);
+        return tmp_var_32;        }(); ++i) {
+            tmp_var_34 = s.item(i, false);
+            tmp_var_35 = s.item(i, false);
+            (e.append(php::concat({php::toString(tmp_var_34), php::toString(tmp_var_35)})), e);
+            tmp_var_34.unset();
+            tmp_var_35.unset();
         }
         s = e;
     }
     if (get_function_resolution_cache(FunctionResolutionCacheId{21}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{21}) = php::fn::function_exists(get_str(50)) ? 1 : 2; }
-    tmp_var_38 = get_function_resolution_cache(FunctionResolutionCacheId{21}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
-    tmp_var_39 = php::call(tmp_var_38, php::VarList{s});
-    tmp_var_40 = php::toBool(!(php::same(tmp_var_39, 6L)));
-    tmp_var_39.unset();
-    if (php::toBool([&]() -> bool {
-        if (php::toBool(tmp_var_40)) {
+    tmp_var_36 = get_function_resolution_cache(FunctionResolutionCacheId{21}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
+    tmp_var_37 = php::call(tmp_var_36, php::VarList{s});
+    tmp_var_38 = php::toBool(!(php::same(tmp_var_37, 6L)));
+    tmp_var_37.unset();
+    tmp_var_42 = php::toBool([&]() -> bool {
+        if (php::toBool(tmp_var_38)) {
             if (get_function_resolution_cache(FunctionResolutionCacheId{22}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{22}) = php::fn::function_exists(get_str(50)) ? 1 : 2; }
-            tmp_var_41 = get_function_resolution_cache(FunctionResolutionCacheId{22}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
-            tmp_var_42 = php::call(tmp_var_41, php::VarList{s});
-            tmp_var_43 = php::toBool(!(php::same(tmp_var_42, 8L)));
-            tmp_var_42.unset();
-            return php::toBool(tmp_var_43);
+            tmp_var_39 = get_function_resolution_cache(FunctionResolutionCacheId{22}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
+            tmp_var_40 = php::call(tmp_var_39, php::VarList{s});
+            tmp_var_41 = php::toBool(!(php::same(tmp_var_40, 8L)));
+            tmp_var_40.unset();
+            return php::toBool(tmp_var_41);
         }
         return false;
+    }());
+    if (php::toBool([&]() -> bool {
+        if (!(php::toBool(tmp_var_42))) {
+            if (get_function_resolution_cache(FunctionResolutionCacheId{23}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{23}) = php::fn::function_exists(get_str(288)) ? 1 : 2; }
+            tmp_var_43 = get_function_resolution_cache(FunctionResolutionCacheId{23}) == 1 ? get_func(RequestFuncId{10}, get_str(288)) : get_persistent_func(PersistentFuncId{12}, get_str(289));
+            return php::toBool(!(php::toBool(php::call(tmp_var_43, php::VarList{get_str(290), s}))));
+        }
+        return true;
     }())) {
-        php::throwException(php::newObject(tmp_var_44, php::VarList{php::concat({get_str(240), php::toString(c)})}));
+        php::throwException(php::newObject(tmp_var_44, php::VarList{php::concat({get_str(291), php::toString(c)})}));
     }
     a = php::toFloat([&]() -> php::Float {
-        if (get_function_resolution_cache(FunctionResolutionCacheId{23}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{23}) = php::fn::function_exists(get_str(50)) ? 1 : 2; }
-        tmp_var_45 = get_function_resolution_cache(FunctionResolutionCacheId{23}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
+        if (get_function_resolution_cache(FunctionResolutionCacheId{24}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{24}) = php::fn::function_exists(get_str(50)) ? 1 : 2; }
+        tmp_var_45 = get_function_resolution_cache(FunctionResolutionCacheId{24}) == 1 ? get_func(RequestFuncId{1}, get_str(50)) : get_persistent_func(PersistentFuncId{1}, get_str(51));
         tmp_var_46 = php::call(tmp_var_45, php::VarList{s});
         tmp_var_50 = php::same(tmp_var_46, 8L);
         tmp_var_46.unset();
         if (php::toBool(tmp_var_50)) {
-            if (get_function_resolution_cache(FunctionResolutionCacheId{24}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{24}) = php::fn::function_exists(get_str(241)) ? 1 : 2; }
-            tmp_var_47 = get_function_resolution_cache(FunctionResolutionCacheId{24}) == 1 ? get_func(RequestFuncId{10}, get_str(241)) : get_persistent_func(PersistentFuncId{12}, get_str(242));
-            if (get_function_resolution_cache(FunctionResolutionCacheId{25}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{25}) = php::fn::function_exists(get_str(238)) ? 1 : 2; }
-            tmp_var_48 = get_function_resolution_cache(FunctionResolutionCacheId{25}) == 1 ? get_func(RequestFuncId{9}, get_str(238)) : get_persistent_func(PersistentFuncId{11}, get_str(239));
+            if (get_function_resolution_cache(FunctionResolutionCacheId{25}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{25}) = php::fn::function_exists(get_str(292)) ? 1 : 2; }
+            tmp_var_47 = get_function_resolution_cache(FunctionResolutionCacheId{25}) == 1 ? get_func(RequestFuncId{11}, get_str(292)) : get_persistent_func(PersistentFuncId{13}, get_str(293));
+            if (get_function_resolution_cache(FunctionResolutionCacheId{26}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{26}) = php::fn::function_exists(get_str(286)) ? 1 : 2; }
+            tmp_var_48 = get_function_resolution_cache(FunctionResolutionCacheId{26}) == 1 ? get_func(RequestFuncId{9}, get_str(286)) : get_persistent_func(PersistentFuncId{11}, get_str(287));
             tmp_var_49 = php::call(tmp_var_48, php::VarList{s, 6L, 2L});
             tmp_var_51 = php::toFloat(php::call(tmp_var_47, php::VarList{tmp_var_49}));
             tmp_var_49.unset();
@@ -2928,24 +2953,24 @@ php::Array php_pixelforge__color__parse(php::Object &this_, php::Var c) {
             return 255.0;
         }
     }());
-    if (get_function_resolution_cache(FunctionResolutionCacheId{26}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{26}) = php::fn::function_exists(get_str(241)) ? 1 : 2; }
-    tmp_var_52 = get_function_resolution_cache(FunctionResolutionCacheId{26}) == 1 ? get_func(RequestFuncId{10}, get_str(241)) : get_persistent_func(PersistentFuncId{12}, get_str(242));
-    if (get_function_resolution_cache(FunctionResolutionCacheId{27}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{27}) = php::fn::function_exists(get_str(238)) ? 1 : 2; }
-    tmp_var_53 = get_function_resolution_cache(FunctionResolutionCacheId{27}) == 1 ? get_func(RequestFuncId{9}, get_str(238)) : get_persistent_func(PersistentFuncId{11}, get_str(239));
+    if (get_function_resolution_cache(FunctionResolutionCacheId{27}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{27}) = php::fn::function_exists(get_str(292)) ? 1 : 2; }
+    tmp_var_52 = get_function_resolution_cache(FunctionResolutionCacheId{27}) == 1 ? get_func(RequestFuncId{11}, get_str(292)) : get_persistent_func(PersistentFuncId{13}, get_str(293));
+    if (get_function_resolution_cache(FunctionResolutionCacheId{28}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{28}) = php::fn::function_exists(get_str(286)) ? 1 : 2; }
+    tmp_var_53 = get_function_resolution_cache(FunctionResolutionCacheId{28}) == 1 ? get_func(RequestFuncId{9}, get_str(286)) : get_persistent_func(PersistentFuncId{11}, get_str(287));
     tmp_var_54 = php::call(tmp_var_53, php::VarList{s, 0L, 2L});
     tmp_var_55 = php::toFloat(php::call(tmp_var_52, php::VarList{tmp_var_54}));
     tmp_var_54.unset();
-    if (get_function_resolution_cache(FunctionResolutionCacheId{28}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{28}) = php::fn::function_exists(get_str(241)) ? 1 : 2; }
-    tmp_var_56 = get_function_resolution_cache(FunctionResolutionCacheId{28}) == 1 ? get_func(RequestFuncId{10}, get_str(241)) : get_persistent_func(PersistentFuncId{12}, get_str(242));
-    if (get_function_resolution_cache(FunctionResolutionCacheId{29}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{29}) = php::fn::function_exists(get_str(238)) ? 1 : 2; }
-    tmp_var_57 = get_function_resolution_cache(FunctionResolutionCacheId{29}) == 1 ? get_func(RequestFuncId{9}, get_str(238)) : get_persistent_func(PersistentFuncId{11}, get_str(239));
+    if (get_function_resolution_cache(FunctionResolutionCacheId{29}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{29}) = php::fn::function_exists(get_str(292)) ? 1 : 2; }
+    tmp_var_56 = get_function_resolution_cache(FunctionResolutionCacheId{29}) == 1 ? get_func(RequestFuncId{11}, get_str(292)) : get_persistent_func(PersistentFuncId{13}, get_str(293));
+    if (get_function_resolution_cache(FunctionResolutionCacheId{30}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{30}) = php::fn::function_exists(get_str(286)) ? 1 : 2; }
+    tmp_var_57 = get_function_resolution_cache(FunctionResolutionCacheId{30}) == 1 ? get_func(RequestFuncId{9}, get_str(286)) : get_persistent_func(PersistentFuncId{11}, get_str(287));
     tmp_var_58 = php::call(tmp_var_57, php::VarList{s, 2L, 2L});
     tmp_var_59 = php::toFloat(php::call(tmp_var_56, php::VarList{tmp_var_58}));
     tmp_var_58.unset();
-    if (get_function_resolution_cache(FunctionResolutionCacheId{30}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{30}) = php::fn::function_exists(get_str(241)) ? 1 : 2; }
-    tmp_var_60 = get_function_resolution_cache(FunctionResolutionCacheId{30}) == 1 ? get_func(RequestFuncId{10}, get_str(241)) : get_persistent_func(PersistentFuncId{12}, get_str(242));
-    if (get_function_resolution_cache(FunctionResolutionCacheId{31}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{31}) = php::fn::function_exists(get_str(238)) ? 1 : 2; }
-    tmp_var_61 = get_function_resolution_cache(FunctionResolutionCacheId{31}) == 1 ? get_func(RequestFuncId{9}, get_str(238)) : get_persistent_func(PersistentFuncId{11}, get_str(239));
+    if (get_function_resolution_cache(FunctionResolutionCacheId{31}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{31}) = php::fn::function_exists(get_str(292)) ? 1 : 2; }
+    tmp_var_60 = get_function_resolution_cache(FunctionResolutionCacheId{31}) == 1 ? get_func(RequestFuncId{11}, get_str(292)) : get_persistent_func(PersistentFuncId{13}, get_str(293));
+    if (get_function_resolution_cache(FunctionResolutionCacheId{32}) == 0) { get_function_resolution_cache(FunctionResolutionCacheId{32}) = php::fn::function_exists(get_str(286)) ? 1 : 2; }
+    tmp_var_61 = get_function_resolution_cache(FunctionResolutionCacheId{32}) == 1 ? get_func(RequestFuncId{9}, get_str(286)) : get_persistent_func(PersistentFuncId{11}, get_str(287));
     tmp_var_62 = php::call(tmp_var_61, php::VarList{s, 4L, 2L});
     tmp_var_63 = php::toFloat(php::call(tmp_var_60, php::VarList{tmp_var_62}));
     tmp_var_62.unset();
@@ -2962,11 +2987,11 @@ php::Array php_pixelforge__color__parse(php::Object &this_, php::Var c) {
 php::Int php_pixelforge__pixelforge__concurrency(php::Object &this_, php::Var n) {
     php::Int tmp_var_0 = 0;
     if (UNEXPECTED(!(n.isNull() || n.isInt()))) {
-        php::throwArgumentTypeError(n, get_str(245), 1, get_str(244), get_str(73));
+        php::throwArgumentTypeError(n, get_str(296), 1, get_str(295), get_str(73));
     }
 
     if (php::toBool(!(php::same(n, php::null)))) {
-        php_pixelforge_concurrency(php::toIntArgExact(n, get_str(243), 1, get_str(244)));
+        php_pixelforge_concurrency(php::toIntArgExact(n, get_str(294), 1, get_str(295)));
     }
     tmp_var_0 = (php::toInt(php_pixelforge_get_concurrency()));
     return tmp_var_0;
@@ -3015,7 +3040,7 @@ ZEND_METHOD(PixelForge_Image, fromFile) {
         php::checkCallArgCount(1, 2, false);
         php::Var raw_arg_path = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_path.isString()))) {
-            php::throwArgumentTypeError(raw_arg_path, get_str(246), 1, get_str(247), get_str(203));
+            php::throwArgumentTypeError(raw_arg_path, get_str(297), 1, get_str(298), get_str(203));
         }
         php::Str arg_path = php::toString(raw_arg_path);
         php::Array arg_options = php::toArray(php::getCallArg(1, php_pixelforge__image__fromfile_arg_1_default_value()));
@@ -3033,7 +3058,7 @@ ZEND_METHOD(PixelForge_Image, fromBuffer) {
         php::checkCallArgCount(1, 2, false);
         php::Var raw_arg_data = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_data.isString()))) {
-            php::throwArgumentTypeError(raw_arg_data, get_str(248), 1, get_str(204), get_str(203));
+            php::throwArgumentTypeError(raw_arg_data, get_str(299), 1, get_str(204), get_str(203));
         }
         php::Str arg_data = php::toString(raw_arg_data);
         php::Array arg_options = php::toArray(php::getCallArg(1, php_pixelforge__image__frombuffer_arg_1_default_value()));
@@ -3051,7 +3076,7 @@ ZEND_METHOD(PixelForge_Image, fromRaw) {
         php::checkCallArgCount(2, 2, false);
         php::Var raw_arg_data = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_data.isString()))) {
-            php::throwArgumentTypeError(raw_arg_data, get_str(249), 1, get_str(204), get_str(203));
+            php::throwArgumentTypeError(raw_arg_data, get_str(300), 1, get_str(204), get_str(203));
         }
         php::Str arg_data = php::toString(raw_arg_data);
         php::Array arg_raw = php::toArray(php::getCallArg(1));
@@ -3303,7 +3328,7 @@ ZEND_METHOD(PixelForge_Image, median) {
         php::checkCallArgCount(0, 1, false);
         php::Var raw_arg_size = php::getCallArg(0, php_pixelforge__image__median_arg_0_default_value());
         if (UNEXPECTED(!(raw_arg_size.isInt()))) {
-            php::throwArgumentTypeError(raw_arg_size, get_str(250), 1, get_str(184), get_str(251));
+            php::throwArgumentTypeError(raw_arg_size, get_str(301), 1, get_str(184), get_str(302));
         }
         php::Int arg_size = php::toInt(raw_arg_size);
         auto retval = php_pixelforge__image__median(this_, arg_size);
@@ -3358,7 +3383,7 @@ ZEND_METHOD(PixelForge_Image, gamma) {
         php::checkCallArgCount(0, 2, false);
         php::Var raw_arg_gamma = php::getCallArg(0, php_pixelforge__image__gamma_arg_0_default_value());
         if (UNEXPECTED(!((raw_arg_gamma.isFloat() || raw_arg_gamma.isInt())))) {
-            php::throwArgumentTypeError(raw_arg_gamma, get_str(110), 1, get_str(252), get_str(253));
+            php::throwArgumentTypeError(raw_arg_gamma, get_str(110), 1, get_str(303), get_str(304));
         }
         php::Float arg_gamma = php::toFloat(raw_arg_gamma);
         php::Var arg_gammaOut = php::getCallArg(1, php_pixelforge__image__gamma_arg_1_default_value());
@@ -3428,7 +3453,7 @@ ZEND_METHOD(PixelForge_Image, threshold) {
         php::checkCallArgCount(0, 2, false);
         php::Var raw_arg_threshold = php::getCallArg(0, php_pixelforge__image__threshold_arg_0_default_value());
         if (UNEXPECTED(!(raw_arg_threshold.isInt()))) {
-            php::throwArgumentTypeError(raw_arg_threshold, get_str(254), 1, get_str(83), get_str(251));
+            php::throwArgumentTypeError(raw_arg_threshold, get_str(305), 1, get_str(83), get_str(302));
         }
         php::Int arg_threshold = php::toInt(raw_arg_threshold);
         php::Array arg_options = php::toArray(php::getCallArg(1, php_pixelforge__image__threshold_arg_1_default_value()));
@@ -3486,7 +3511,7 @@ ZEND_METHOD(PixelForge_Image, greyscale) {
         php::checkCallArgCount(0, 1, false);
         php::Var raw_arg_grey = php::getCallArg(0, php_pixelforge__image__greyscale_arg_0_default_value());
         if (UNEXPECTED(!(raw_arg_grey.isBool()))) {
-            php::throwArgumentTypeError(raw_arg_grey, get_str(255), 1, get_str(256), get_str(257));
+            php::throwArgumentTypeError(raw_arg_grey, get_str(306), 1, get_str(252), get_str(307));
         }
         php::Bool arg_grey = php::toBool(raw_arg_grey);
         auto retval = php_pixelforge__image__greyscale(this_, arg_grey);
@@ -3503,7 +3528,7 @@ ZEND_METHOD(PixelForge_Image, grayscale) {
         php::checkCallArgCount(0, 1, false);
         php::Var raw_arg_grey = php::getCallArg(0, php_pixelforge__image__grayscale_arg_0_default_value());
         if (UNEXPECTED(!(raw_arg_grey.isBool()))) {
-            php::throwArgumentTypeError(raw_arg_grey, get_str(258), 1, get_str(256), get_str(257));
+            php::throwArgumentTypeError(raw_arg_grey, get_str(308), 1, get_str(252), get_str(307));
         }
         php::Bool arg_grey = php::toBool(raw_arg_grey);
         auto retval = php_pixelforge__image__grayscale(this_, arg_grey);
@@ -3520,7 +3545,7 @@ ZEND_METHOD(PixelForge_Image, toColourspace) {
         php::checkCallArgCount(1, 1, false);
         php::Var raw_arg_space = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_space.isString()))) {
-            php::throwArgumentTypeError(raw_arg_space, get_str(259), 1, get_str(260), get_str(203));
+            php::throwArgumentTypeError(raw_arg_space, get_str(309), 1, get_str(310), get_str(203));
         }
         php::Str arg_space = php::toString(raw_arg_space);
         auto retval = php_pixelforge__image__tocolourspace(this_, php::takeValue(arg_space));
@@ -3537,7 +3562,7 @@ ZEND_METHOD(PixelForge_Image, toColorspace) {
         php::checkCallArgCount(1, 1, false);
         php::Var raw_arg_space = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_space.isString()))) {
-            php::throwArgumentTypeError(raw_arg_space, get_str(261), 1, get_str(260), get_str(203));
+            php::throwArgumentTypeError(raw_arg_space, get_str(311), 1, get_str(310), get_str(203));
         }
         php::Str arg_space = php::toString(raw_arg_space);
         auto retval = php_pixelforge__image__tocolorspace(this_, php::takeValue(arg_space));
@@ -3566,7 +3591,7 @@ ZEND_METHOD(PixelForge_Image, ensureAlpha) {
         php::checkCallArgCount(0, 1, false);
         php::Var raw_arg_alpha = php::getCallArg(0, php_pixelforge__image__ensurealpha_arg_0_default_value());
         if (UNEXPECTED(!((raw_arg_alpha.isFloat() || raw_arg_alpha.isInt())))) {
-            php::throwArgumentTypeError(raw_arg_alpha, get_str(262), 1, get_str(112), get_str(253));
+            php::throwArgumentTypeError(raw_arg_alpha, get_str(312), 1, get_str(112), get_str(304));
         }
         php::Float arg_alpha = php::toFloat(raw_arg_alpha);
         auto retval = php_pixelforge__image__ensurealpha(this_, arg_alpha);
@@ -3609,7 +3634,7 @@ ZEND_METHOD(PixelForge_Image, bandbool) {
         php::checkCallArgCount(1, 1, false);
         php::Var raw_arg_op = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_op.isString()))) {
-            php::throwArgumentTypeError(raw_arg_op, get_str(263), 1, get_str(264), get_str(203));
+            php::throwArgumentTypeError(raw_arg_op, get_str(313), 1, get_str(314), get_str(203));
         }
         php::Str arg_op = php::toString(raw_arg_op);
         auto retval = php_pixelforge__image__bandbool(this_, php::takeValue(arg_op));
@@ -3627,7 +3652,7 @@ ZEND_METHOD(PixelForge_Image, boolean) {
         php::Var arg_operand = php::getCallArg(0);
         php::Var raw_arg_op = php::getCallArg(1);
         if (UNEXPECTED(!(raw_arg_op.isString()))) {
-            php::throwArgumentTypeError(raw_arg_op, get_str(265), 2, get_str(264), get_str(203));
+            php::throwArgumentTypeError(raw_arg_op, get_str(315), 2, get_str(314), get_str(203));
         }
         php::Str arg_op = php::toString(raw_arg_op);
         auto retval = php_pixelforge__image__boolean(this_, php::takeValue(arg_operand),php::takeValue(arg_op));
@@ -3644,7 +3669,7 @@ ZEND_METHOD(PixelForge_Image, dilate) {
         php::checkCallArgCount(0, 1, false);
         php::Var raw_arg_width = php::getCallArg(0, php_pixelforge__image__dilate_arg_0_default_value());
         if (UNEXPECTED(!(raw_arg_width.isInt()))) {
-            php::throwArgumentTypeError(raw_arg_width, get_str(266), 1, get_str(10), get_str(251));
+            php::throwArgumentTypeError(raw_arg_width, get_str(316), 1, get_str(10), get_str(302));
         }
         php::Int arg_width = php::toInt(raw_arg_width);
         auto retval = php_pixelforge__image__dilate(this_, arg_width);
@@ -3661,7 +3686,7 @@ ZEND_METHOD(PixelForge_Image, erode) {
         php::checkCallArgCount(0, 1, false);
         php::Var raw_arg_width = php::getCallArg(0, php_pixelforge__image__erode_arg_0_default_value());
         if (UNEXPECTED(!(raw_arg_width.isInt()))) {
-            php::throwArgumentTypeError(raw_arg_width, get_str(267), 1, get_str(10), get_str(251));
+            php::throwArgumentTypeError(raw_arg_width, get_str(317), 1, get_str(10), get_str(302));
         }
         php::Int arg_width = php::toInt(raw_arg_width);
         auto retval = php_pixelforge__image__erode(this_, arg_width);
@@ -3833,7 +3858,7 @@ ZEND_METHOD(PixelForge_Image, toFormat) {
         php::checkCallArgCount(1, 2, false);
         php::Var raw_arg_format = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_format.isString()))) {
-            php::throwArgumentTypeError(raw_arg_format, get_str(268), 1, get_str(206), get_str(203));
+            php::throwArgumentTypeError(raw_arg_format, get_str(318), 1, get_str(206), get_str(203));
         }
         php::Str arg_format = php::toString(raw_arg_format);
         php::Array arg_o = php::toArray(php::getCallArg(1, php_pixelforge__image__toformat_arg_1_default_value()));
@@ -3851,7 +3876,7 @@ ZEND_METHOD(PixelForge_Image, output) {
         php::checkCallArgCount(2, 2, false);
         php::Var raw_arg_format = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_format.isString()))) {
-            php::throwArgumentTypeError(raw_arg_format, get_str(269), 1, get_str(206), get_str(203));
+            php::throwArgumentTypeError(raw_arg_format, get_str(319), 1, get_str(206), get_str(203));
         }
         php::Str arg_format = php::toString(raw_arg_format);
         php::Array arg_o = php::toArray(php::getCallArg(1));
@@ -3943,7 +3968,7 @@ ZEND_METHOD(PixelForge_Image, withIccProfile) {
         php::checkCallArgCount(1, 1, false);
         php::Var raw_arg_profile = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_profile.isString()))) {
-            php::throwArgumentTypeError(raw_arg_profile, get_str(270), 1, get_str(271), get_str(203));
+            php::throwArgumentTypeError(raw_arg_profile, get_str(320), 1, get_str(321), get_str(203));
         }
         php::Str arg_profile = php::toString(raw_arg_profile);
         auto retval = php_pixelforge__image__withiccprofile(this_, php::takeValue(arg_profile));
@@ -4011,7 +4036,7 @@ ZEND_METHOD(PixelForge_Image, keep) {
         php::checkCallArgCount(1, 1, false);
         php::Var raw_arg_flags = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_flags.isInt()))) {
-            php::throwArgumentTypeError(raw_arg_flags, get_str(272), 1, get_str(273), get_str(251));
+            php::throwArgumentTypeError(raw_arg_flags, get_str(322), 1, get_str(323), get_str(302));
         }
         php::Int arg_flags = php::toInt(raw_arg_flags);
         auto retval = php_pixelforge__image__keep(this_, arg_flags);
@@ -4028,7 +4053,7 @@ ZEND_METHOD(PixelForge_Image, toFile) {
         php::checkCallArgCount(1, 1, false);
         php::Var raw_arg_path = php::getCallArg(0);
         if (UNEXPECTED(!(raw_arg_path.isString()))) {
-            php::throwArgumentTypeError(raw_arg_path, get_str(274), 1, get_str(247), get_str(203));
+            php::throwArgumentTypeError(raw_arg_path, get_str(324), 1, get_str(298), get_str(203));
         }
         php::Str arg_path = php::toString(raw_arg_path);
         auto retval = php_pixelforge__image__tofile(this_, php::takeValue(arg_path));
@@ -4151,17 +4176,17 @@ ZEND_METHOD(PixelForge_PixelForge, cache) {
         php::checkCallArgCount(0, 3, false);
         php::Var raw_arg_memoryMb = php::getCallArg(0, php_pixelforge__pixelforge__cache_arg_0_default_value());
         if (UNEXPECTED(!(raw_arg_memoryMb.isInt()))) {
-            php::throwArgumentTypeError(raw_arg_memoryMb, get_str(275), 1, get_str(276), get_str(251));
+            php::throwArgumentTypeError(raw_arg_memoryMb, get_str(325), 1, get_str(326), get_str(302));
         }
         php::Int arg_memoryMb = php::toInt(raw_arg_memoryMb);
         php::Var raw_arg_files = php::getCallArg(1, php_pixelforge__pixelforge__cache_arg_1_default_value());
         if (UNEXPECTED(!(raw_arg_files.isInt()))) {
-            php::throwArgumentTypeError(raw_arg_files, get_str(275), 2, get_str(277), get_str(251));
+            php::throwArgumentTypeError(raw_arg_files, get_str(325), 2, get_str(327), get_str(302));
         }
         php::Int arg_files = php::toInt(raw_arg_files);
         php::Var raw_arg_items = php::getCallArg(2, php_pixelforge__pixelforge__cache_arg_2_default_value());
         if (UNEXPECTED(!(raw_arg_items.isInt()))) {
-            php::throwArgumentTypeError(raw_arg_items, get_str(275), 3, get_str(278), get_str(251));
+            php::throwArgumentTypeError(raw_arg_items, get_str(325), 3, get_str(328), get_str(302));
         }
         php::Int arg_items = php::toInt(raw_arg_items);
         php_pixelforge__pixelforge__cache(this_, arg_memoryMb,arg_files,arg_items);

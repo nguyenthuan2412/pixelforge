@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.1 — 2026-11-20
+
+Fixes found by a stricter test suite (warnings are now failures, plus a sweep of every public method and invalid input):
+
+- **Crash fix:** an invalid `toColourspace()`, `bandbool()`, `linear()`, `convolve()` or `recomb()` argument aborted the
+  PHP process instead of throwing `PixelForgeException`.
+- Colours: CSS names (`red`, `navy`, `orange`, …) are supported. Invalid colours throw `InvalidArgumentException`
+  instead of silently producing a wrong colour.
+- TIFF: `predictor` is only applied to deflate/lzw/zstd, the compressions libtiff accepts it for.
+- Builds against libvips 8.15/8.16 (the `mks2013`/`mks2021` kernels need 8.17+ and fall back to lanczos3).
+- README rewritten around copy-paste install steps and recipes.
+
 ## 0.1.0 — 2026-11-20
 
 First release.

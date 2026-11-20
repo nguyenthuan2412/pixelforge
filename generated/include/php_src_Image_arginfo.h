@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 0c61e917299340fe9883b4af5983c033e08d0371 */
+ * Stub hash: 77ba09138b7fbfcdc31b897c7c688387bee9f54d */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_PixelForge_Image___construct, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, handle, IS_MIXED, 0)

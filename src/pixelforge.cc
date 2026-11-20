@@ -106,7 +106,16 @@ static std::vector<double> parseList(const std::string &s) {
     std::stringstream ss(s);
     std::string item;
     while (std::getline(ss, item, ',')) {
-        if (!item.empty()) out.push_back(std::stod(item));
+        if (item.empty()) continue;
+        size_t used = 0;
+        double v = 0;
+        try {
+            v = std::stod(item, &used);
+        } catch (const std::exception &) {
+            used = 0;
+        }
+        if (used != item.size()) throw VError("invalid number: " + item);
+        out.push_back(v);
     }
     return out;
 }
@@ -870,7 +879,9 @@ static void formatOptions(vips::VOption *opts, const OutSpec &o, const std::stri
             ->set("tile_height", o.tileHeight)
             ->set("pyramid", o.pyramid);
         std::string p = lower(o.predictor);
-        if (!p.empty()) {
+        std::string comp = lower(o.compression.empty() ? "jpeg" : o.compression);
+        // libtiff only accepts a predictor with deflate / lzw / zstd
+        if (!p.empty() && (comp == "deflate" || comp == "lzw" || comp == "zstd")) {
             opts->set("predictor", (int) (p == "float" ? VIPS_FOREIGN_TIFF_PREDICTOR_FLOAT
                                           : p == "none" ? VIPS_FOREIGN_TIFF_PREDICTOR_NONE
                                                         : VIPS_FOREIGN_TIFF_PREDICTOR_HORIZONTAL));
@@ -1054,6 +1065,15 @@ static VipsBandFormat parseDepth(const std::string &d) {
         fail(e);                                                                                                       \
         return ret;                                                                                                    \
     }
+
+/** Like PIXELFORGE_STEP, but `pre` (argument parsing that may throw) also runs inside the try. */
+#define PIXELFORGE_STEP_PRE(h, pre, expr)                                                                              \
+    PIXELFORGE_TRY ImageBox *b = box(h);                                                                               \
+    if (!b) return false;                                                                                              \
+    pre;                                                                                                               \
+    b->steps.push_back(expr);                                                                                          \
+    return true;                                                                                                       \
+    PIXELFORGE_CATCH(false)
 
 #define PIXELFORGE_STEP(h, expr)                                                                                            \
     PIXELFORGE_TRY ImageBox *b = box(h);                                                                                    \
@@ -1460,9 +1480,8 @@ Bool php_pixelforge_threshold(Variant h, Int threshold, Bool greyscale) {
 }
 
 Bool php_pixelforge_linear(Variant h, String a, String b2) {
-    std::vector<double> va = parseList(str(a));
-    std::vector<double> vb = parseList(str(b2));
-    PIXELFORGE_STEP(h, generic([=](VImage img) {
+    std::vector<double> va, vb;
+    PIXELFORGE_STEP_PRE(h, (va = parseList(str(a)), vb = parseList(str(b2))), generic([=](VImage img) {
                    return onColour(img, [&](VImage c) { return castLike(c.linear(va, vb), c.format()); });
                }))
 }
@@ -1501,8 +1520,8 @@ Bool php_pixelforge_tint(Variant h, Float r, Float g, Float bl) {
 }
 
 Bool php_pixelforge_colourspace(Variant h, String space) {
-    VipsInterpretation sp = parseSpace(str(space));
-    PIXELFORGE_STEP(h, generic([=](VImage img) { return img.colourspace(sp); }))
+    VipsInterpretation sp;
+    PIXELFORGE_STEP_PRE(h, sp = parseSpace(str(space)), generic([=](VImage img) { return img.colourspace(sp); }))
 }
 
 Bool php_pixelforge_remove_alpha(Variant h) {
@@ -1543,8 +1562,8 @@ Bool php_pixelforge_join_channel(Variant h, Variant other) {
 }
 
 Bool php_pixelforge_bandbool(Variant h, String op) {
-    int o = enumFromNick(VIPS_TYPE_OPERATION_BOOLEAN, lower(str(op)), "boolean operation");
-    PIXELFORGE_STEP(h, generic([=](VImage img) {
+    int o = 0;
+    PIXELFORGE_STEP_PRE(h, o = enumFromNick(VIPS_TYPE_OPERATION_BOOLEAN, lower(str(op)), "boolean operation"), generic([=](VImage img) {
                    return img.bandbool((VipsOperationBoolean) o).copy(VImage::option()->set(
                        "interpretation", (int) VIPS_INTERPRETATION_B_W));
                }))
@@ -1584,13 +1603,12 @@ Bool php_pixelforge_erode(Variant h, Int width) {
 
 Bool php_pixelforge_convolve(Variant h, Int width, Int height, String kernel, Float scale, Float offset) {
     int w = (int) width, hh = (int) height;
-    std::vector<double> k = parseList(str(kernel));
+    std::vector<double> k;
     double sc = scale, off = offset;
-    if ((int) k.size() != w * hh) {
-        throwException(String(kExceptionClass), "convolve(): kernel size does not match width*height");
-        return false;
-    }
-    PIXELFORGE_STEP(h, generic([=](VImage img) {
+    PIXELFORGE_STEP_PRE(h, {
+        k = parseList(str(kernel));
+        if (w <= 0 || hh <= 0 || (int) k.size() != w * hh) throw VError("convolve(): kernel size does not match width*height");
+    }, generic([=](VImage img) {
                    VImage mask = VImage::new_matrix(w, hh, const_cast<double *>(k.data()), (int) k.size());
                    double s = sc;
                    if (s == 0) {
@@ -1604,13 +1622,13 @@ Bool php_pixelforge_convolve(Variant h, Int width, Int height, String kernel, Fl
 }
 
 Bool php_pixelforge_recomb(Variant h, String matrix) {
-    std::vector<double> m = parseList(str(matrix));
-    int n = (int) std::lround(std::sqrt((double) m.size()));
-    if (n * n != (int) m.size()) {
-        throwException(String(kExceptionClass), "recomb(): matrix must be square (3x3 or 4x4)");
-        return false;
-    }
-    PIXELFORGE_STEP(h, generic([=](VImage img) {
+    std::vector<double> m;
+    int n = 0;
+    PIXELFORGE_STEP_PRE(h, {
+        m = parseList(str(matrix));
+        n = (int) std::lround(std::sqrt((double) m.size()));
+        if (n < 1 || n * n != (int) m.size()) throw VError("recomb(): matrix must be square (3x3 or 4x4)");
+    }, generic([=](VImage img) {
                    VImage mat = VImage::new_matrix(n, n, const_cast<double *>(m.data()), (int) m.size());
                    if (n == img.bands()) return castLike(img.recomb(mat), img.format());
                    return onColour(img, [&](VImage c) { return castLike(c.recomb(mat), c.format()); });

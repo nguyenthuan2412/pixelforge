@@ -1,174 +1,338 @@
 # pixelforge
 
-Fast, low-memory image processing for PHP, built on [libvips](https://www.libvips.org/), with a fluent API
-modelled on Node.js [sharp](https://sharp.pixelplumbing.com/).
+[![CI](https://github.com/nguyenthuan2412/pixelforge/actions/workflows/ci.yml/badge.svg)](https://github.com/nguyenthuan2412/pixelforge/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/nguyenthuan2412/pixelforge)](https://github.com/nguyenthuan2412/pixelforge/releases)
+![PHP](https://img.shields.io/badge/PHP-8.4%20%7C%208.5-777bb4)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+
+**Fast, low-memory image processing for PHP.** Resize, crop, convert and watermark images
+with a chainable API modelled on Node.js [sharp](https://sharp.pixelplumbing.com/), powered by [libvips](https://www.libvips.org/).
 
 ```php
 use PixelForge\Image;
 
-Image::fromFile('in.jpg')
-    ->rotate()                                    // auto-orient from EXIF
-    ->resize(800, 600, ['fit' => 'cover', 'position' => 'attention'])
-    ->webp(['quality' => 80])
-    ->toFile('out.webp');
+Image::fromFile('photo.jpg')->resize(800)->webp(['quality' => 80])->toFile('photo.webp');
 ```
 
-- **As fast as sharp, with less memory.** Uses the same libvips build and the same shrink-on-load strategy as sharp.
-  Speed is equal or better in every benchmark below, and peak RSS is 2–4× lower.
-- **Covers most of sharp's API.** Resize (5 fits, gravity, smart crop, 8 kernels), composite, filters, colour
-  management, animated GIF/WebP, text, raw pixels, Deep Zoom tiles, JPEG/PNG/WebP/AVIF/HEIF/GIF/TIFF/JXL output.
-- **Builds with standard PHP tooling.** `phpize`, PECL and PIE all work. The C++ in `generated/` is produced by
-  the [TypePHP](https://github.com/swoole/typephp) AOT compiler from [src/Image.php](src/Image.php), so building
-  doesn't need TypePHP.
+- ⚡ **As fast as sharp**, about **3× faster than GD** and **20× faster than Imagick**, with 2–4× less memory ([benchmarks](#performance))
+- 🖼️ JPEG, PNG, WebP, AVIF, HEIF, GIF, TIFF, animated GIF/WebP, SVG input
+- 🧩 Installs with **PIE**, **PECL** or **Docker**. Linux and macOS.
 
-Requirements: PHP **8.4 or 8.5** (NTS), libvips **≥ 8.15** (`vips-cpp`), gmp, mpfr, a C++17 compiler.
+---
 
-## Installation
+## Contents
 
-### 1. libvips
+[Install](#install) · [Quick start](#quick-start) · [Recipes](#recipes) · [Options](#options) ·
+[API](#api-reference) · [Performance](#performance) · [Troubleshooting](#troubleshooting) · [Limitations](#limitations)
 
-Use either your system package:
+---
+
+## Install
+
+You need **PHP 8.4 or 8.5** (non-thread-safe, the default build) and **libvips 8.15+**.
+Pick the section that matches your system.
+
+### Docker: try it in 1 minute
 
 ```bash
-sudo apt install libvips-dev libgmp-dev libmpfr-dev pkg-config     # Debian / Ubuntu
-brew install vips gmp mpfr pkg-config                               # macOS
+git clone https://github.com/nguyenthuan2412/pixelforge && cd pixelforge
+docker build -t pixelforge .
+docker run --rm -v "$PWD":/work -w /work pixelforge php -r '
+  PixelForge\Image::fromFile("/app/fixtures/large.jpg")->resize(400)->toFile("thumb.jpg");
+  echo "done\n";'
 ```
 
-or **the prebuilt bundle Node's sharp ships** (recommended for speed). It's a single self-contained library built
-with mozjpeg, zlib-ng, libwebp 1.6, libheif + aom, and highway SIMD:
+### Ubuntu / Debian
 
 ```bash
-sudo scripts/install-libvips.sh /opt/sharp-libvips     # Linux glibc/musl x64/arm64, macOS x64/arm64
-```
+# 1. PHP 8.4/8.5 headers + libvips
+sudo apt install php8.4-dev libvips-dev libgmp-dev libmpfr-dev pkg-config git unzip
+#    (Ubuntu ships PHP 8.3: add `sudo add-apt-repository ppa:ondrej/php` first, then use php8.4-dev or php8.5-dev)
 
-### 2. The extension
+# 2. PIE, the official PHP extension installer
+curl -fsSL -o pie.phar https://github.com/php/pie/releases/latest/download/pie.phar
+sudo install pie.phar /usr/local/bin/pie
 
-**PIE**
-
-```bash
-pie repository:add vcs https://github.com/nguyenthuan2412/pixelforge   # until the package is on Packagist
+# 3. pixelforge (PIE builds it, writes the .ini and enables it)
+pie repository:add vcs https://github.com/nguyenthuan2412/pixelforge
 pie install nguyenthuan2412/pixelforge
-# with the sharp-libvips bundle:
+```
+
+### macOS (Homebrew)
+
+```bash
+brew install php vips gmp mpfr pkg-config pie
+pie repository:add vcs https://github.com/nguyenthuan2412/pixelforge
+pie install nguyenthuan2412/pixelforge
+```
+
+### In your own Dockerfile
+
+```dockerfile
+FROM php:8.5-fpm
+RUN apt-get update && apt-get install -y --no-install-recommends libvips-dev libgmp-dev libmpfr-dev pkg-config \
+ && curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.1/pixelforge-0.1.1.tgz \
+ && printf "\n" | pecl install pixelforge-0.1.1.tgz \
+ && docker-php-ext-enable pixelforge \
+ && rm pixelforge-0.1.1.tgz && rm -rf /var/lib/apt/lists/*
+```
+
+### PECL (without PIE)
+
+```bash
+curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.1/pixelforge-0.1.1.tgz
+pecl install pixelforge-0.1.1.tgz        # press Enter at the libvips prompt to use pkg-config
+# then add `extension=pixelforge` to your php.ini
+```
+
+Download the `.tgz` first, because `pecl install <url>` can't follow GitHub's download redirect.
+
+### Check it works
+
+```bash
+php --ri pixelforge
+php -r 'print_r(PixelForge\PixelForge::versions());'
+```
+
+### Optional: the faster libvips build
+
+Distro libvips works fine. For the fastest results (the numbers in [Performance](#performance)), use the same libvips
+bundle that sharp ships, which is built with mozjpeg, zlib-ng and SIMD:
+
+```bash
+git clone https://github.com/nguyenthuan2412/pixelforge && cd pixelforge
+sudo scripts/install-libvips.sh /opt/sharp-libvips          # Linux x64/arm64 (glibc or musl), macOS
 pie install nguyenthuan2412/pixelforge --with-pixelforge-vips=/opt/sharp-libvips
 ```
 
-PIE builds the extension, writes the ini file and enables it.
+---
 
-**PECL** (package from the [releases page](https://github.com/nguyenthuan2412/pixelforge/releases))
+## Quick start
+
+```php
+use PixelForge\Image;
+
+// open → operations → format → save
+Image::fromFile('photo.jpg')          // or Image::fromBuffer($bytes)
+    ->rotate()                        // fix orientation from EXIF
+    ->resize(300, 300)                // crop to fill 300×300 (default fit: cover)
+    ->jpeg(['quality' => 85])         // pick a format (optional: inferred from the file name)
+    ->toFile('thumb.jpg');            // or ->toBuffer() to get the bytes
+```
+
+Nothing is decoded until `toFile()` or `toBuffer()`. JPEG and WebP are decoded at reduced size when you shrink, which keeps
+large photos fast and memory use low.
+
+## Recipes
+
+**Convert format**
+
+```php
+Image::fromFile('photo.jpg')->webp(['quality' => 80])->toFile('photo.webp');
+Image::fromFile('photo.jpg')->avif()->toFile('photo.avif');
+Image::fromFile('photo.png')->toFile('photo.jpg');           // format from the extension
+```
+
+**Handle an upload: make responsive sizes**
+
+```php
+$bytes = file_get_contents($_FILES['image']['tmp_name']);
+foreach ([480, 960, 1920] as $w) {
+    Image::fromBuffer($bytes)
+        ->rotate()
+        ->resize($w, null, ['withoutEnlargement' => true])   // keep aspect ratio, never upscale
+        ->webp(['quality' => 78])
+        ->toFile("uploads/photo-$w.webp");
+}
+```
+
+**Serve an image over HTTP**
+
+```php
+$jpeg = Image::fromFile('photo.jpg')->resize(800)->jpeg(['quality' => 82, 'progressive' => true])->toBuffer();
+header('Content-Type: image/jpeg');
+echo $jpeg;
+```
+
+**Fit inside a box with a background / smart crop**
+
+```php
+Image::fromFile('photo.jpg')->resize(400, 400, ['fit' => 'contain', 'background' => 'white'])->toFile('boxed.png');
+Image::fromFile('photo.jpg')->resize(400, 400, ['position' => 'attention'])->toFile('smart-crop.jpg');
+```
+
+**Watermark**
+
+```php
+Image::fromFile('photo.jpg')->resize(1200)
+    ->composite([['input' => 'logo.png', 'gravity' => 'southeast']])
+    ->toFile('watermarked.jpg');
+```
+
+**Read metadata** (reads the header only, without decoding pixels)
+
+```php
+$m = Image::fromFile('photo.jpg')->metadata();
+echo "{$m['width']}x{$m['height']} {$m['format']}";   // 6000x4000 jpeg
+```
+
+**Animated GIF → animated WebP**
+
+```php
+Image::fromFile('anim.gif', ['animated' => true])->resize(200)->webp()->toFile('anim.webp');
+```
+
+**Text and blank canvases**
+
+```php
+Image::text(['text' => '<b>Hello</b> world', 'dpi' => 200, 'rgba' => true])->toFile('text.png');
+Image::create(['width' => 300, 'height' => 200, 'channels' => 3, 'background' => 'navy'])->toFile('blank.png');
+```
+
+**Errors**
+
+```php
+use PixelForge\PixelForgeException;
+
+try {
+    Image::fromFile('missing.jpg')->toBuffer();
+} catch (PixelForgeException $e) {
+    echo $e->getMessage();   // Input file is missing: missing.jpg
+}
+```
+
+Bad arguments (an unknown colour, fit or format) throw immediately. Nothing fails silently.
+
+## Options
+
+### `resize(width, height, options)`
+
+Pass `null` for width or height to keep the aspect ratio.
+
+| `fit` | Result |
+|---|---|
+| `cover` *(default)* | Fill the box, crop the overflow |
+| `contain` | Fit inside the box, pad with `background` |
+| `fill` | Stretch to exactly width × height |
+| `inside` | Fit inside the box, no padding (result can be smaller) |
+| `outside` | Cover the box, no crop (result can be larger) |
+
+| Option | Values |
+|---|---|
+| `position` / `gravity` | `centre`, `north`, `northeast`, … `northwest`, `top`, `right bottom`, … , `entropy`, `attention` (smart crop) |
+| `background` | `'white'`, `'#ff0000'`, `'#ff000080'`, `[255, 0, 0, 0.5]`, `'transparent'` |
+| `withoutEnlargement` / `withoutReduction` | `true` to never upscale / downscale |
+| `kernel` | `lanczos3` *(default)*, `lanczos2`, `nearest`, `linear`, `cubic`, `mitchell`, `mks2013`, `mks2021` |
+
+### Output formats
+
+| Method | Common options |
+|---|---|
+| `jpeg()` | `quality` (80), `progressive`, `chromaSubsampling` (`'4:4:4'`), `mozjpeg` |
+| `png()` | `compressionLevel` (6), `palette`, `colours`, `quality`, `progressive` |
+| `webp()` | `quality` (80), `lossless`, `nearLossless`, `alphaQuality`, `effort` (4) |
+| `avif()` / `heif()` | `quality` (50), `lossless`, `effort` (4), `chromaSubsampling` |
+| `gif()` | `colours` (256), `effort`, `dither`, `loop`, `delay` |
+| `tiff()` | `quality`, `compression` (`jpeg`, `deflate`, `lzw`, `webp`, …), `tile`, `pyramid` |
+| `jxl()` | `quality`, `lossless`, `effort` (only when libvips has JPEG XL) |
+| `raw()` | uncompressed pixels |
+
+Metadata (EXIF, ICC, XMP) is **removed by default**, as in sharp. Keep it with `keepMetadata()`, or write your own with
+`withExif([...])` and `withIccProfile('p3')`.
+
+## API reference
+
+Everything is in the `PixelForge` namespace.
+
+| Area | Methods |
+|---|---|
+| **Open** | `Image::fromFile($path, $o)`, `Image::fromBuffer($bytes, $o)`, `Image::fromRaw($pixels, [width, height, channels])`, `Image::create([...])`, `Image::text([...])`, `Image::join([...], [animated, across])` |
+| **Open options** | `animated`, `page`, `pages`, `autoOrient`, `failOn`, `limitInputPixels`, `density` (SVG/PDF DPI), `ignoreIcc` |
+| **Resize & crop** | `resize`, `extract(['left','top','width','height'])`, `extend(int\|[top, bottom, left, right, background, extendWith])`, `trim()` |
+| **Rotate & flip** | `rotate(?angle)` *(no angle = EXIF auto-orient)*, `autoOrient`, `flip`, `flop`, `affine` |
+| **Adjust** | `sharpen`, `blur`, `median`, `gamma`, `negate`, `normalise`, `clahe`, `threshold`, `linear`, `modulate(['brightness','saturation','hue'])`, `tint`, `greyscale` |
+| **Advanced** | `convolve`, `recomb`, `dilate`, `erode`, `boolean`, `bandbool`, `flatten`, `unflatten` |
+| **Colour & channels** | `toColourspace`, `removeAlpha`, `ensureAlpha`, `extractChannel`, `joinChannel`, `withIccProfile` |
+| **Combine** | `composite([[input, gravity \| left+top, blend, tile]])` |
+| **Output** | `jpeg`, `png`, `webp`, `avif`, `heif`, `gif`, `tiff`, `jxl`, `raw`, `toFormat`, `tile` (Deep Zoom, Google Maps, IIIF) |
+| **Metadata** | `keepMetadata`, `keepExif`, `keepIccProfile`, `withExif`, `withExifMerge` |
+| **Run** | `toFile($path)`, `toBuffer(?$format)`, `toBufferWithInfo()`, `metadata()`, `stats()`, `clone()`, `timeout(['seconds' => n])` |
+| **Global** | `PixelForge::versions()`, `PixelForge::format()`, `PixelForge::concurrency(?n)`, `PixelForge::cache()`, `PixelForge::memory()` |
+
+The method names and options follow [sharp's documentation](https://sharp.pixelplumbing.com/api-constructor), so
+most sharp examples translate line by line: JS `{ fit: 'contain' }` becomes PHP `['fit' => 'contain']`.
+
+## Performance
+
+Measured against Node.js sharp 0.35.5 on the same libvips build, with a 24 MP JPEG and 4 CPUs (median of 7 rounds):
+
+| Task | sharp | pixelforge | Peak memory sharp → pixelforge |
+|---|---|---|---|
+| JPEG → 800px JPEG | 43.6 ms | **43.3 ms** | 130 → **51 MB** |
+| JPEG → 800px AVIF | 75.3 ms | **73.3 ms** | 137 → **73 MB** |
+| resize + watermark | 62.3 ms | **54.7 ms** | 148 → **55 MB** |
+| re-encode full 24 MP | 149.1 ms | **136.7 ms** | 454 → **226 MB** |
+
+Against PHP's built-in options on the same task (24 MP JPEG → 800px JPEG, 4 CPUs):
+
+| | Time | Peak memory |
+|---|---|---|
+| **pixelforge** | **40–68 ms** | **58 MB** |
+| GD | 130–224 ms (about 3× slower) | 137 MB |
+| Imagick | 835–1231 ms (about 20× slower) | 205 MB |
+
+Method and scripts: [compare/](compare/) (`./compare/run.sh` against sharp, `bench.Dockerfile` + `tests/bench.php` against GD/Imagick).
+
+**PHP-FPM tip:** each worker already runs in parallel, so `PIXELFORGE_CONCURRENCY=1` is usually the best setting.
+pixelforge also hands freed memory back to the OS after every image (`PIXELFORGE_TRIM=0` turns this off).
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `libvips (vips-cpp >= 8.15) not found` | Install `libvips-dev` (Debian/Ubuntu) or `vips` (Homebrew), or pass `--with-pixelforge-vips=/prefix` |
+| `libgmp not found` / `libmpfr not found` | `apt install libgmp-dev libmpfr-dev` or `brew install gmp mpfr` |
+| `pixelforge requires PHP 8.4 or 8.5` | Install PHP 8.4/8.5 dev headers (`php8.4-dev`). Check `php-config --version` |
+| PIE says ZTS is not supported | Use a non-thread-safe PHP build (the default for CLI and FPM) |
+| `Class "PixelForge\Image" not found` | The extension isn't loaded: check `php --ri pixelforge` and your `extension=pixelforge` line |
+| `pecl install https://…` fails | Download the `.tgz` first, then `pecl install pixelforge-x.y.z.tgz` |
+| `Output format not available: jxl` | Your libvips was built without that codec. See [Limitations](#limitations) |
+| `Fontconfig error` with `Image::text()` | Install a font config: `apt install fontconfig-config fonts-dejavu-core` |
+
+## Limitations
+
+The available codecs depend on how libvips was built. The sharp bundle has exactly the same limits as Node's sharp:
+
+| Feature | sharp (Node) | pixelforge + sharp bundle | pixelforge + Debian libvips |
+|---|---|---|---|
+| TIFF with zstd | ❌ | ❌ | ✅ |
+| JPEG XL | ❌ | ❌ | ✅ |
+| HEIF with HEVC | ❌ | ❌ | ✅ (with the x265 plugin) |
+| JPEG 2000, PDF input | ❌ | ❌ | install the OpenJPEG / poppler build of libvips |
+
+Not implemented yet: Node-style streams (use `fromBuffer(stream_get_contents($fp))`), `pipelineColourspace`, gain maps.
+`stats()` describes the processed image, while sharp's describes the input.
+
+## Development
+
+```
+src/            the extension: Image.php (PHP API), pixelforge.cc (libvips core), pixelforge.stub.php
+generated/      C++ generated from src/*.php by TypePHP. Don't edit; run scripts/generate.sh
+deps/phpx/      bundled PHPX runtime used by the generated code
+tests/          *.phpt (make test) and run.php (full suite, run in Docker)
+compare/        benchmark against Node.js sharp
+```
 
 ```bash
-curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.0/pixelforge-0.1.0.tgz
-pecl install pixelforge-0.1.0.tgz            # it prompts for the libvips prefix: press Enter to use pkg-config
-echo "extension=pixelforge" > "$(php-config --ini-dir 2>/dev/null || php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')/50-pixelforge.ini"
+phpize && ./configure && make && make test TESTS=tests/     # build + quick tests
+docker build -t pixelforge . && docker run --rm pixelforge php /app/tests/run.php   # full suite
+scripts/generate.sh                                         # after editing src/Image.php or the stub
 ```
 
-Download the archive first. `pecl install <url>` fails on GitHub's release redirects.
-
-**From source**
-
-```bash
-phpize && ./configure [--with-pixelforge-vips=/opt/sharp-libvips] && make && sudo make install
-make test TESTS=tests/
-```
-
-**Docker**
-
-```bash
-docker build -t pixelforge .                                    # PHP 8.5 CLI + sharp-libvips
-docker build --build-arg PHP_VARIANT=fpm -t pixelforge:fpm .    # PHP-FPM
-docker build --build-arg PHP_VERSION=8.4 -t pixelforge:8.4 .
-docker build --build-arg VIPS_FLAVOR=source -t pixelforge .     # libvips from source + Debian libs (adds JPEG XL)
-docker run --rm pixelforge php /app/tests/run.php               # full functional suite
-```
-
-## Performance vs Node.js sharp
-
-Both run the same libvips binary on a 24 MP JPEG, with `--cpus=4`, default settings on both sides, median of 7 rounds.
-Reproduce with `ROUNDS=7 N=30 ./compare/run.sh`.
-
-| Task | sharp ms | pixelforge ms | Speed | Peak RSS sharp / pf | RSS after work sharp / pf |
-|---|---|---|---|---|---|
-| metadata | 0.3 | 0.2 | **1.80×** | 69 / 38 MB | 69 / 38 MB |
-| JPEG → 800px JPEG | 43.6 | 43.3 | 1.01× | 130 / 51 MB | 128 / 40 MB |
-| → 800px WebP (buffer) | 73.8 | 74.2 | 0.99× | 104 / 54 MB | 104 / 42 MB |
-| → 320×240 cover + sharpen | 38.2 | 36.9 | 1.04× | 104 / 45 MB | 103 / 39 MB |
-| → 800px AVIF | 75.3 | 73.3 | 1.03× | 137 / 73 MB | 124 / 48 MB |
-| PNG alpha → 200px | 8.3 | 8.6 | 0.97× | 94 / 48 MB | 93 / 41 MB |
-| resize 1200 + watermark | 62.3 | 54.7 | **1.14×** | 148 / 55 MB | 148 / 40 MB |
-| re-encode full 24MP | 149.1 | 136.7 | **1.09×** | 454 / 226 MB | 362 / 55 MB |
-| mixed (5 tasks) | 272.5 | 280.2 | 0.97× | 414 / 224 MB | 249 / 54 MB |
-
-Differences within ±3% are measurement noise. Output bytes match sharp or differ by less than 0.3%.
-
-How it gets there:
-
-- The same `fastShrinkOnLoad` logic as sharp: JPEG is decoded at 1/2, 1/4 or 1/8 scale, and WebP/SVG/PDF at the
-  target scale.
-- Alpha is premultiplied and kept in 8-bit, so `vips_resize` stays on its SIMD path.
-- The thread count is picked per pipeline: one thread below 3 MP, otherwise every CPU the cgroup quota allows.
-- `malloc_trim()` runs after each output, so long-lived FPM workers stay small: about 55 MB instead of 145 MB.
-- The pipeline is lazy and reads sequentially. Inputs are not copied, and outputs are copied once.
-
-Tuning through environment variables: `PIXELFORGE_CONCURRENCY` sets a fixed thread count, `PIXELFORGE_AUTO_THREADS_MP`
-sets the auto threshold in megapixels, `PIXELFORGE_TRIM=0` disables `malloc_trim`, and `PIXELFORGE_VIPS_WARNINGS=1`
-shows libvips warnings.
-
-## API
-
-All classes are in the `PixelForge` namespace. Errors throw `PixelForge\PixelForgeException`.
-
-**Input:** `Image::fromFile($path, $o)`, `Image::fromBuffer($bytes, $o)`, `Image::fromRaw($pixels, [width, height, channels, depth, premultiplied])`,
-`Image::create([width, height, channels, background, noise => [type => 'gaussian', mean, sigma]])`,
-`Image::text([text (Pango markup), font, fontfile, width, height, align, justify, dpi, rgba, spacing, wrap])`,
-`Image::join([...], [animated, across, shim, background, halign, valign])`.
-Input options: `failOn`, `limitInputPixels`, `autoOrient`, `animated`, `pages`, `page`, `density`, `unlimited`, `ignoreIcc`, `raw`.
-
-**Resize:** `resize(?w, ?h, [fit, position|gravity (incl. entropy/attention), background, kernel, withoutEnlargement, withoutReduction, fastShrinkOnLoad])`
-
-**Geometry:** `extract`, `extend` (background|copy|repeat|mirror), `trim([threshold, background, lineArt])`, `rotate(?angle)`, `autoOrient`, `flip`, `flop`,
-`affine([a,b,c,d], [background, interpolator, idx, idy, odx, ody])`
-
-**Filters:** `sharpen`, `median`, `blur`, `flatten`, `unflatten`, `gamma`, `negate`, `normalise`, `clahe`, `threshold`, `linear`, `modulate`, `tint`,
-`greyscale`, `convolve`, `recomb`, `dilate`, `erode`
-
-**Channels:** `toColourspace`, `removeAlpha`, `ensureAlpha`, `extractChannel`, `joinChannel`, `bandbool`, `boolean`
-
-**Composite:** `composite([[input (Image | path | bytes | ['create' => …] | ['text' => …]), gravity, left, top, blend, tile, premultiplied]])`
-
-**Output:** `jpeg` (incl. `mozjpeg`), `png` (incl. palette), `webp`, `avif`, `heif`, `gif`, `tiff`, `jxl` (when libvips has it), `raw`, `toFormat`;
-animation `loop`/`delay`; `tile([size, overlap, angle, layout dz|zoomify|google|iiif|iiif3, container fs|zip, depth, skipBlanks, centre, basename, id])`.
-
-**Metadata:** stripped by default, like sharp. Keep it with `keepMetadata`, `keepExif`, `keepIccProfile` or `keepXmp`. Write it with `withIccProfile('srgb'|'p3'|'cmyk'|path)`,
-`withExif([...])` or `withExifMerge([...])`.
-
-**Sinks:** `toFile`, `toBuffer`, `toBufferWithInfo`, `metadata()` (header only), `stats()` (incl. entropy, sharpness, dominant colour),
-`timeout(['seconds' => n])`, `clone()`
-
-**Global:** `PixelForge::concurrency(?n)`, `PixelForge::cache()`, `PixelForge::versions()`, `PixelForge::format()`, `PixelForge::memory()`
-
-## Differences from sharp
-
-- No Node-style streams. Use `fromBuffer(stream_get_contents($fp))` and `fwrite($fp, $img->toBuffer())` instead.
-- `pipelineColourspace` and gain maps are not implemented yet.
-- `stats()` describes the processed image. sharp describes the input.
-- With the sharp-libvips bundle, HEIF is AV1-only and JPEG XL, JPEG 2000 and PDF are unavailable, the same as in sharp.
-- Only PHP 8.4/8.5 NTS is supported, because of the PHPX runtime.
-
-## Repository layout
-
-```
-src/                 extension source: Image.php (PHP API, compiled by TypePHP), pixelforge.cc (libvips core), pixelforge.stub.php
-generated/           C++ generated from src/*.php — do not edit, run scripts/generate.sh
-deps/phpx/           vendored PHPX runtime (Apache-2.0) used by the generated code
-config.m4            phpize build (PECL / PIE)
-composer.json        PIE metadata · scripts/package.php → package.xml (PECL)
-tests/*.phpt         make test · tests/run.php full suite (needs Docker fixtures)
-compare/             benchmark against Node.js sharp
-Dockerfile           vips → generate → build (phpize) → runtime
-```
-
-Edit `src/`, then run `scripts/generate.sh` (Docker) to refresh `generated/`.
+The PHP API in `src/Image.php` is compiled to C++ by the [TypePHP](https://github.com/swoole/typephp) AOT compiler.
+You don't need TypePHP to build or install. To release, push a `vX.Y.Z` tag: CI builds the PECL package and the
+GitHub release.
 
 ## License
 
-Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE) for the bundled third-party components.
+Apache-2.0, see [LICENSE](LICENSE). Bundled third-party code (PHPX, mpdecimal, wren-gc) is listed in [NOTICE](NOTICE).

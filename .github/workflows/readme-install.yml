@@ -1,0 +1,87 @@
+# Runs the install instructions from README.md verbatim on clean machines,
+# so the README can't drift from reality.
+name: README install
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths: [README.md, .github/workflows/readme-install.yml]
+  schedule:
+    - cron: '0 3 * * 1'
+
+jobs:
+  debian:
+    name: Debian 13 · PIE (README "Ubuntu / Debian")
+    runs-on: ubuntu-24.04
+    container: debian:trixie
+    steps:
+      - run: apt-get update && apt-get install -y sudo curl ca-certificates php8.4-cli gawk
+        env:
+          DEBIAN_FRONTEND: noninteractive
+      - uses: actions/checkout@v5
+      - name: README steps
+        run: |
+          scripts/readme-block.sh "### Ubuntu / Debian" bash | sed -e 's/pie install /pie install --no-interaction /' -e 's/apt install /apt install -y /' > /tmp/steps.sh
+          cat /tmp/steps.sh
+          bash -euxo pipefail /tmp/steps.sh
+      - run: scripts/readme-block.sh "### Check it works" bash | bash -eux
+
+  ubuntu:
+    name: Ubuntu 24.04 · ondrej PPA · PIE
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: PHP 8.4 from the PPA as the default php / php-config / phpize (the README's note for Ubuntu)
+        run: |
+          sudo add-apt-repository -y ppa:ondrej/php && sudo apt-get update
+          sudo apt-get install -y php8.4-cli php8.4-dev
+          for t in php php-config phpize; do sudo update-alternatives --set $t /usr/bin/${t}8.4; done
+          php -v
+      - name: README steps
+        run: |
+          scripts/readme-block.sh "### Ubuntu / Debian" bash | sed -e 's/pie install /pie install --no-interaction /' -e 's/apt install /apt install -y /' > /tmp/steps.sh
+          bash -euxo pipefail /tmp/steps.sh
+      - run: scripts/readme-block.sh "### Check it works" bash | bash -eux
+
+  macos:
+    name: macOS · Homebrew · PIE
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - name: README steps
+        run: |
+          scripts/readme-block.sh "### macOS (Homebrew)" bash | sed -e 's/pie install /pie install --no-interaction /' -e 's/apt install /apt install -y /' > /tmp/steps.sh
+          cat /tmp/steps.sh
+          bash -euxo pipefail /tmp/steps.sh
+      - run: |
+          export PATH="$(brew --prefix)/bin:$PATH"
+          scripts/readme-block.sh "### Check it works" bash | bash -eux
+
+  dockerfile:
+    name: README Dockerfile snippet (php:8.5-fpm + PECL)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: |
+          mkdir /tmp/ctx
+          scripts/readme-block.sh "### In your own Dockerfile" dockerfile > /tmp/ctx/Dockerfile
+          echo 'RUN php -m | grep -x pixelforge && php -r "echo PixelForge\\PixelForge::versions()[\"vips\"], PHP_EOL;"' >> /tmp/ctx/Dockerfile
+          cat /tmp/ctx/Dockerfile
+          docker build /tmp/ctx
+
+  docker-quickstart:
+    name: README Docker quick try
+    runs-on: ubuntu-24.04
+    steps:
+      - run: |
+          cd /tmp
+          curl -fsSL https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/scripts/readme-block.sh -o rb.sh
+          curl -fsSL https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/README.md -o README.md
+          mkdir -p scripts && mv rb.sh scripts/readme-block.sh && chmod +x scripts/readme-block.sh
+          scripts/readme-block.sh "### Docker: try it in 1 minute" bash > steps.sh
+          cat steps.sh
+          bash -euxo pipefail steps.sh
+          test -s pixelforge/thumb.jpg

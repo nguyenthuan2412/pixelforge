@@ -230,9 +230,14 @@ t('withIccProfile / withExif', function () use ($F) {
 });
 t('timeout aborts', function () use ($F) {
     try {
-        Image::fromFile("$F/large.jpg")->blur(30)->timeout(['seconds' => 1])->png(['compressionLevel' => 9])->toBuffer();
+        // ~1-3 s of work on any machine; the 50 ms deadline must cut it short
+        $t = microtime(true);
+        Image::fromFile("$F/large.jpg")->blur(30)->timeout(['seconds' => 0.05])->png(['compressionLevel' => 9])->toBuffer();
         throw new Exception('no timeout');
-    } catch (PixelForgeException $e) { ok(str_contains($e->getMessage(), 'timeout'), $e->getMessage()); }
+    } catch (PixelForgeException $e) {
+        ok(str_contains($e->getMessage(), 'timeout'), $e->getMessage());
+        ok(microtime(true) - $t < 1.0, 'timeout fired late: ' . round(microtime(true) - $t, 2) . 's');
+    }
 });
 t('metadata extras', function () use ($F) {
     $m = Image::fromFile("$F/large.jpg")->metadata();

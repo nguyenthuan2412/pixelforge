@@ -2600,7 +2600,7 @@ zend_module_entry pixelforge_module_entry = {
     PHP_RINIT(pixelforge),
     PHP_RSHUTDOWN(pixelforge),
     PHP_MINFO(pixelforge),
-    "0.1.1",
+    "0.1.2",
     STANDARD_MODULE_PROPERTIES,
 };
 

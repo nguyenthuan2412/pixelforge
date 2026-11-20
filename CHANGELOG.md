@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 — 2026-11-20
+
+- `timeout()` now works below one second (libvips progress only counts whole seconds; a monotonic clock is used instead).
+- macOS: errors raised inside libvips are caught reliably. The extension is built with hidden visibility, so libc++ saw
+  `vips::VError` as a different type and `catch` blocks (timeout translation, ICC fallback) could miss.
+- CI runs the README install steps verbatim on Debian, Ubuntu (PPA), macOS (Homebrew), the Dockerfile snippet and the
+  Docker quick try. README troubleshooting covers PIE's GitHub rate limit.
+
 ## 0.1.1 — 2026-11-20
 
 Fixes found by a stricter test suite (warnings are now failures, plus a sweep of every public method and invalid input):

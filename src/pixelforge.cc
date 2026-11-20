@@ -14,7 +14,12 @@
  *  - libvips operation cache disabled by default (lowest RSS for php-fpm).
  */
 #include <phpx.h>
+// libvips' C++ classes (VError, VImage...) must keep default visibility even though the
+// extension is built with -fvisibility=hidden: otherwise typeinfo differs between this .so
+// and libvips-cpp, and `catch (const vips::VError &)` silently misses on macOS (libc++).
+#pragma GCC visibility push(default)
 #include <vips/vips8>
+#pragma GCC visibility pop
 #if defined(__GLIBC__)
 #include <malloc.h>
 #endif
@@ -774,7 +779,7 @@ static VImage prepareForSave(VImage img, const std::string &fmt, const ImageBox 
                                                 ->set("embedded", true)
                                                 ->set("intent", (int) VIPS_INTENT_PERCEPTUAL)
                                                 ->set("depth", depth));
-        } catch (const VError &) {
+        } catch (const std::exception &) {
             vips_error_clear();
         }
     }
@@ -936,10 +941,11 @@ static vips::VOption *saveOptions(const ImageBox &b, const std::string &fmt, con
 
 struct Deadline {
     double seconds;
+    gint64 start = g_get_monotonic_time();  // microseconds; VipsProgress::run only has whole seconds
 };
 
-static void evalCallback(VipsImage *image, VipsProgress *progress, Deadline *d) {
-    if (d->seconds > 0 && progress->run >= d->seconds) vips_image_set_kill(image, TRUE);
+static void evalCallback(VipsImage *image, VipsProgress *, Deadline *d) {
+    if (d->seconds > 0 && (g_get_monotonic_time() - d->start) / 1e6 >= d->seconds) vips_image_set_kill(image, TRUE);
 }
 
 static void armTimeout(VImage &img, Deadline &d) {
@@ -956,10 +962,12 @@ static void checkTimeout(const VImage &img, const Deadline &d) {
 [[noreturn]] static void rethrowTimeout(const Deadline &d) {
     try {
         throw;
-    } catch (const VError &e) {
+    } catch (const std::exception &e) {
         if (d.seconds > 0 && strstr(e.what(), "killed")) {
             vips_error_clear();
-            throw VError("timeout: processing exceeded " + std::to_string(d.seconds) + "s");
+            char limit[32];
+            snprintf(limit, sizeof limit, "%gs", d.seconds);
+            throw VError(std::string("timeout: processing exceeded ") + limit);
         }
         throw;
     }

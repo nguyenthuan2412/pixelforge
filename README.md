@@ -71,17 +71,17 @@ pie install nguyenthuan2412/pixelforge
 ```dockerfile
 FROM php:8.5-fpm
 RUN apt-get update && apt-get install -y --no-install-recommends libvips-dev libgmp-dev libmpfr-dev pkg-config \
- && curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.1/pixelforge-0.1.1.tgz \
- && printf "\n" | pecl install pixelforge-0.1.1.tgz \
+ && curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.2/pixelforge-0.1.2.tgz \
+ && printf "\n" | pecl install pixelforge-0.1.2.tgz \
  && docker-php-ext-enable pixelforge \
- && rm pixelforge-0.1.1.tgz && rm -rf /var/lib/apt/lists/*
+ && rm pixelforge-0.1.2.tgz && rm -rf /var/lib/apt/lists/*
 ```
 
 ### PECL (without PIE)
 
 ```bash
-curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.1/pixelforge-0.1.1.tgz
-pecl install pixelforge-0.1.1.tgz        # press Enter at the libvips prompt to use pkg-config
+curl -fsSLO https://github.com/nguyenthuan2412/pixelforge/releases/download/v0.1.2/pixelforge-0.1.2.tgz
+pecl install pixelforge-0.1.2.tgz        # press Enter at the libvips prompt to use pkg-config
 # then add `extension=pixelforge` to your php.ini
 ```
 
@@ -295,6 +295,7 @@ pixelforge also hands freed memory back to the OS after every image (`PIXELFORGE
 | `pixelforge requires PHP 8.4 or 8.5` | Install PHP 8.4/8.5 dev headers (`php8.4-dev`). Check `php-config --version` |
 | PIE says ZTS is not supported | Use a non-thread-safe PHP build (the default for CLI and FPM) |
 | `Class "PixelForge\Image" not found` | The extension isn't loaded: check `php --ri pixelforge` and your `extension=pixelforge` line |
+| PIE: `git clone --mirror git@github.com:…` / `Could not read from remote repository` | GitHub API rate limit for anonymous Composer. Run `export COMPOSER_AUTH='{"github-oauth":{"github.com":"<a GitHub token>"}}'` and retry, or use the PECL steps |
 | `pecl install https://…` fails | Download the `.tgz` first, then `pecl install pixelforge-x.y.z.tgz` |
 | `Output format not available: jxl` | Your libvips was built without that codec. See [Limitations](#limitations) |
 | `Fontconfig error` with `Image::text()` | Install a font config: `apt install fontconfig-config fonts-dejavu-core` |

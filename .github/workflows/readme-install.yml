@@ -12,6 +12,10 @@ on:
   schedule:
     - cron: '0 3 * * 1'
 
+env:
+  # Authenticated GitHub API for Composer/PIE: shared CI runners hit the anonymous rate limit
+  COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ github.token }}"}}'
+
 jobs:
   debian:
     name: Debian 13 · PIE (README "Ubuntu / Debian")
@@ -42,7 +46,8 @@ jobs:
           php -v
       - name: README steps
         run: |
-          scripts/readme-block.sh "### Ubuntu / Debian" bash | sed -e 's/pie install /pie install --no-interaction /' -e 's/apt install /apt install -y /' > /tmp/steps.sh
+          # interactive users get a sudo password prompt from PIE; CI has no TTY, so run PIE itself with sudo
+          scripts/readme-block.sh "### Ubuntu / Debian" bash | sed -e 's/^pie install /sudo -E pie install --no-interaction /' -e 's/^pie repository/sudo -E pie repository/' -e 's/apt install /apt install -y /' > /tmp/steps.sh
           bash -euxo pipefail /tmp/steps.sh
       - run: scripts/readme-block.sh "### Check it works" bash | bash -eux
 
